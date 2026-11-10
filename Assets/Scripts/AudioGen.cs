@@ -106,6 +106,7 @@ public static class AudioGen
             case "piano": return Piano();
             case "win": return Win();
             case "click": return Click();
+            case "fridgehum": return FridgeHum();
         }
         return Clip(name, new float[SR / 10]);
     }
@@ -432,6 +433,21 @@ public static class AudioGen
             }
         }
         return Clip("win", d, 0.6f);
+    }
+
+    /// <summary>Zumbido eléctrico fuerte de un refrigerador viejo, en bucle sin cortes (todas las frecuencias son múltiplos de 0.25 Hz).</summary>
+    static AudioClip FridgeHum()
+    {
+        var d = Buf(4f);
+        for (int i = 0; i < d.Length; i++)
+        {
+            float t = (float)i / SR;
+            float wob = 1f + 0.18f * Mathf.Sin(2f * Mathf.PI * 0.5f * t);
+            d[i] = (Mathf.Sin(2f * Mathf.PI * 50f * t) * 1.0f + Mathf.Sin(2f * Mathf.PI * 100f * t) * 0.7f +
+                    Mathf.Sin(2f * Mathf.PI * 150f * t) * 0.45f + Mathf.Sin(2f * Mathf.PI * 250f * t) * 0.2f +
+                    Mathf.Sin(2f * Mathf.PI * 350f * t) * 0.08f) * wob;
+        }
+        return Clip("fridgehum", d, 0.55f);
     }
 
     static AudioClip Click()

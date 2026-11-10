@@ -6,7 +6,7 @@ public class AudioGenTests
     static readonly string[] Names =
     {
         "drone", "heart", "roar", "scream", "screech", "stinger", "boom", "skitter", "static", "siren",
-        "giggle", "whisper", "creak", "glass", "drip", "step", "pickup", "checkpoint", "piano", "win", "click"
+        "giggle", "whisper", "creak", "glass", "drip", "step", "pickup", "checkpoint", "piano", "win", "click", "fridgehum"
     };
 
     [TestCaseSource(nameof(Names))]

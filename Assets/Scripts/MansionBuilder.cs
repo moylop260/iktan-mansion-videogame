@@ -678,12 +678,17 @@ public static partial class MansionBuilder
         // ---- Cocina
         Window(true, 0f, 20f, y, 1, false);
         var fridge = P("Refri", 23.2f, y, 6.8f, 1.2f, 2.1f, 1.0f, C(White, 0.5f));
+        FridgeDetails(23.2f, y, 6.8f, Vector3.left, 1.0f, 1.2f);   // zumba fuerte y gotea algo oscuro
         Choose(fridge, "Refrigerador", "Zumba muy fuerte y gotea algo oscuro.",
             O("Abrir el refri", () => gm.Die("fridge", fridge)),
             O("Dejarlo cerrado", () => gm.Say("Mejor no abrir el refri...")));
-        Act(P("Mostrador", 20f, y, 0.7f, 5f, 1.0f, 0.9f, C(new Color(0.55f, 0.55f, 0.58f), 0.5f)), "Cajón del mostrador", "Abrir el cajón",
-            () => Take("Linterna", "Encontraste una linterna.", "El cajón está vacío."));
-        Look(P("Alacena", 17.0f, y, 7.2f, 1.4f, 2.0f, 1.0f, sWood), "Alacena", "Solo latas vencidas y telarañas.");
+        P("MostradorCocina", 20f, y, 0.7f, 5f, 1.0f, 0.9f, C(new Color(0.55f, 0.55f, 0.58f), 0.5f));
+        var cajon = KitchenDrawerUnit("Mostrador", 20f, y, 1.15f, Vector3.forward, 0.9f, 0.2f);   // el cajón se desliza y deja ver la linterna
+        ContainerInteract(cajon, "Cajón del mostrador", cajon.GetComponent<Openable>(), "Linterna", "Abrir el cajón",
+            "Dentro del cajón hay cubiertos, fósforos y una linterna vieja.", "Tomar la linterna", "Encontraste una linterna.", "El cajón está vacío.", "Cerrar el cajón");
+        var alacena = OpenablePantry("Alacena", 17.0f, y, 7.4f, Vector3.back, 1.4f, 0.9f, 2.0f);
+        ContainerInteract(alacena, "Alacena", alacena.GetComponent<Openable>(), null, "Abrir la alacena",
+            "Solo latas vencidas y telarañas.", "", "", "Solo latas vencidas y telarañas.", "Cerrar la alacena");
         P("MesaCocina", 20f, y, 4.5f, 1.6f, 0.8f, 1.6f, sWood);
         Sconce(false, 24f, 4f, 1.8f, -1);
 
@@ -698,8 +703,9 @@ public static partial class MansionBuilder
         Choose(closet, "Closet", "Algo respira del otro lado de la puerta.",
             O("Abrir el closet", () => gm.Die("closet", closet)),
             O("Dejarlo cerrado", () => gm.Say("Prefieres no averiguar qué hay dentro.")));
-        Act(P("Mesita", 3.9f, y, 15.4f, 0.7f, 0.6f, 0.7f, sWood), "Mesita de noche", "Revisar",
-            () => Take("Pilas", "Encontraste unas pilas.", "La mesita ya no tiene nada."));
+        var mesita = NightstandWithBatteries("Mesita", 3.9f, y, 15.6f, Vector3.back, 0.7f, 0.55f, 0.65f);
+        ContainerInteract(mesita, "Mesita de noche", mesita.GetComponent<Openable>(), "Pilas", "Abrir el cajón",
+            "En el cajón hay unas pilas, un rosario y recibos viejos.", "Tomar las pilas", "Encontraste unas pilas.", "La mesita ya no tiene nada.", "Cerrar el cajón");
 
         // ---- Baño
         var banera = P("Banera", 10.9f, y, 14.4f, 1.4f, 0.7f, 2.6f, C(White, 0.8f));
