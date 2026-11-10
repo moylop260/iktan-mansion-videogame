@@ -613,6 +613,7 @@ public static class MansionBuilder
             if (gm.Has("Llave amarilla")) { gm.Say("Ya tocaste la melodía."); return; }
             if (!gm.Has("Partituras")) { gm.Say("Es un piano antiguo. Faltan las partituras."); return; }
             gm.Give("Llave amarilla");
+            gm.audio.Sfx("piano", 0.8f);
             gm.Say("Tocas la melodía de las partituras. Un compartimento secreto se abre: ¡una llave amarilla!");
         });
         P("MesaMuneca", 6.8f, y, 15.3f, 0.8f, 0.7f, 0.8f, sWood);

@@ -64,6 +64,7 @@ public class GameManager : MonoBehaviour
     string chTitle = "", chBody = ""; List<Opt> chOpts = new List<Opt>(); bool chCancel;
     string endText = "", deathText = ""; float deathTime;
     Interactable hover;
+    public AudioManager audio;
     int chSel, invSel;
     string zoneName = "", bannerText = ""; float bannerStart = -10f;
     string popupItem = ""; float popupStart = -10f;
@@ -103,6 +104,8 @@ public class GameManager : MonoBehaviour
 
         serif = Font.CreateDynamicFontFromOSFont("Times New Roman", 32);
         BuildPlayer();
+        audio = gameObject.AddComponent<AudioManager>();
+        audio.Init();
         BuildPostFx();
         RebuildWorld();
         player.Teleport(startPos, 0f);
@@ -171,6 +174,7 @@ public class GameManager : MonoBehaviour
         if (items.Contains(item)) return;
         items.Add(item);
         popupItem = item; popupStart = Time.time;
+        if (audio != null) audio.Sfx("pickup", 0.7f);
     }
     public bool FlashReady { get { return Has("Linterna") && Has("Pilas"); } }
     public bool FlashOn { get { return flash != null && flash.enabled; } }
@@ -186,6 +190,7 @@ public class GameManager : MonoBehaviour
     public void Win(string t)
     {
         mode = Mode.Win; endText = t;
+        audio.Sfx("win", 0.8f);
         PlayerPrefs.DeleteKey(KEY); last = null;
     }
 
@@ -224,6 +229,7 @@ public class GameManager : MonoBehaviour
         };
         currentCp = cp.name;
         Persist(); SetLamps();
+        audio.Sfx("checkpoint", 0.5f);
         Say("Checkpoint guardado: " + cp.name);
     }
 
@@ -321,6 +327,18 @@ public class GameManager : MonoBehaviour
         bool lockCursor = mode == Mode.Playing;
         Cursor.lockState = lockCursor ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible = !lockCursor;
+
+        float amb = 0.3f;
+        switch (mode)
+        {
+            case Mode.Title: amb = 0.25f; break;
+            case Mode.Paused: amb = 0.08f; break;
+            case Mode.GameOver: amb = 0.05f; break;
+            case Mode.Win:
+            case Mode.Ended: amb = 0.1f; break;
+        }
+        audio.SetAmbient(amb);
+        audio.Tick(mode == Mode.Playing, player.transform.position);
 
         switch (mode)
         {

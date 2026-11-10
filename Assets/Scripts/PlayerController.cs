@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     public Transform camT;
     CharacterController cc;
-    float yaw, pitch, vy, bob;
+    float yaw, pitch, vy, bob, stepDist;
 
     void Awake() { cc = GetComponent<CharacterController>(); }
 
@@ -42,6 +42,15 @@ public class PlayerController : MonoBehaviour
         cc.Move(vel * Time.deltaTime);
 
         float moving = m.magnitude > 0.1f ? 1f : 0f;
+        if (moving > 0f && cc.isGrounded)
+        {
+            stepDist += speed * Time.deltaTime;
+            if (stepDist > (speed > 4f ? 1.5f : 1.05f))
+            {
+                stepDist = 0f;
+                gm.audio.Sfx("step", 0.45f, Random.Range(0.85f, 1.1f));
+            }
+        }
         bob += Time.deltaTime * speed * 2.2f * moving;
         camT.localPosition = new Vector3(0f, 1.65f + Mathf.Sin(bob) * 0.035f * moving, 0f);
     }
