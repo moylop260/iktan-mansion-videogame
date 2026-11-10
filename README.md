@@ -4,7 +4,7 @@ A game by **Iktan Lopez (IkLpz)**, based on his handwritten notebook (see `docs/
 A Unity 3D project for macOS, in a classic survival-horror style
 (Resident Evil / Outlast flavour). The game text and voices are in Spanish.
 
-**Version:** `0.1.0`
+**Version:** `0.2.0`
 
 ## How to play
 - **WASD** move · **Mouse** look · **Shift** run
