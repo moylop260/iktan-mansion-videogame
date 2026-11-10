@@ -182,17 +182,35 @@ public class Cinema : MonoBehaviour
         gm.audio.Sfx("scream", 0.85f, 0.9f);
         yield return Tween(0.55f, u => { fig.Reach(Ease(u), 3.2f); shake = 0.03f + 0.04f * u; });
 
-        // te arrastra
-        Flash(new Color(0.7f, 0f, 0f), 0.7f, 0.5f);
-        gm.audio.Sfx("scream", 1f);
-        Vector3 c0 = camPos, c1 = tall ? fig.transform.position + Vector3.up * 2.1f + fwd * 0.2f : new Vector3(front.x, b.center.y + 0.1f, front.z) - fwd * 0.1f;
+        // se lanza sobre ti: la cara llena la pantalla, iluminada de rojo
+        Vector3 dir = new Vector3(-fwd.x, 0f, -fwd.z).normalized;                 // de la criatura hacia ti
+        var redLight = LightAt(camPos + dir * 0.2f + Vector3.up * 0.1f, new Color(1f, 0.2f, 0.12f), 6f, 5f);
+        float headH = 1.85f * scale;
+        Vector3 s0 = fig.transform.position;
+        Vector3 s1 = new Vector3(camPos.x, camPos.y - headH + 0.05f, camPos.z) + dir * 1.05f;
+        gm.audio.Sfx("roar", 1f, 1.15f); gm.audio.Sfx("stinger", 0.7f);
+        Flash(new Color(0.8f, 0f, 0f), 0.6f, 0.4f);
+        yield return Tween(0.3f, u =>
+        {
+            float e = u * u;
+            fig.transform.position = Vector3.Lerp(s0, s1, e);
+            fig.transform.rotation = Quaternion.LookRotation(-dir);
+            fig.Reach(1f, 3.2f); fig.Mouth(e); fov = Mathf.Lerp(62f, 80f, e); shake = 0.08f + 0.1f * u; gm.Pulse(1f);
+        });
+
+        // te sujeta y te arrastra hacia atrás, hacia la oscuridad del closet
+        gm.audio.Sfx("scream", 1f, 1.05f);
+        Vector3 c0 = camPos, off = fig.transform.position - camPos;
+        Vector3 c1 = new Vector3(front.x, b.center.y, front.z) - fwd * 0.3f;
         float r0 = roll;
-        yield return Tween(1.0f, u =>
+        yield return Tween(1.1f, u =>
         {
             float e = Ease(u);
-            camPos = Vector3.Lerp(c0, c1, e) + (tall ? Vector3.up * 0.4f * e : Vector3.zero);
-            fov = Mathf.Lerp(62f, 100f, e); roll = Mathf.Lerp(r0, 25f, e); shake = 0.06f + 0.12f * u; gm.Pulse(1f);
-            if (tall) { fig.Reach(1f, 3.2f); }
+            camPos = Vector3.Lerp(c0, c1, e) + (tall ? Vector3.up * 0.5f * e : Vector3.zero);
+            fig.transform.position = camPos + off + (tall ? Vector3.zero : Vector3.zero);
+            fig.Mouth(0.7f + 0.3f * Mathf.Sin(u * 30f)); fig.Reach(1f, 3.2f);
+            roll = Mathf.Lerp(r0, 22f, e); shake = 0.12f + 0.1f * u; gm.Pulse(1f); fov = Mathf.Lerp(80f, 100f, e);
+            redLight.intensity = Mathf.Lerp(6f, 1f, u);
         });
     }
 

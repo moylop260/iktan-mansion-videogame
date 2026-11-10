@@ -7,7 +7,8 @@ public class Creature : MonoBehaviour
     public Renderer[] eyes = new Renderer[0];
     public Transform[] legs = new Transform[0];
     public Material eyeMat;
-    float eyeBase = 3f;
+    float eyeBase = 7f;
+    public Transform jaw;
 
     /// <summary>Extiende los brazos (0 = relajados hacia abajo, 1 = estirados hacia adelante).</summary>
     public void Reach(float u, float maxLen = 2.4f)
@@ -28,6 +29,14 @@ public class Creature : MonoBehaviour
 
     /// <summary>Estira un brazo recto hacia adelante a la longitud dada (brazo pálido del espejo).</summary>
     public void Extend(float len) { SetArm(armL, handL, len, 0f); }
+
+    /// <summary>Abre la boca (0 = cerrada, 1 = muy abierta).</summary>
+    public void Mouth(float u)
+    {
+        if (jaw == null) return;
+        jaw.localScale = new Vector3(0.2f, Mathf.Lerp(0.05f, 0.3f, u), 0.05f);
+        jaw.localPosition = new Vector3(0f, 1.78f - 0.1f * u, 0.17f);
+    }
 
     public void SetEyes(float k)
     {
@@ -103,15 +112,22 @@ public static class Mon
         root.transform.rotation = Quaternion.LookRotation(facing.sqrMagnitude > 0.001f ? facing : Vector3.forward);
         root.transform.localScale = Vector3.one * scale;
         var c = root.AddComponent<Creature>();
-        var sk = Lit(skin, 0.35f);
+        var sk = Lit(skin, 0.5f);
         Part(root.transform, PrimitiveType.Cube, new Vector3(0, 0.4f, 0), new Vector3(0.34f, 0.8f, 0.22f), sk);
         Part(root.transform, PrimitiveType.Cube, new Vector3(0, 1.2f, 0), new Vector3(0.5f, 0.85f, 0.28f), sk);
         var h = Part(root.transform, PrimitiveType.Sphere, new Vector3(0, 1.85f, 0.02f), new Vector3(0.34f, 0.44f, 0.34f), sk);
         c.head = h.transform;
-        Part(root.transform, PrimitiveType.Cube, new Vector3(0, 1.73f, 0.17f), new Vector3(0.2f, 0.14f, 0.05f), Lit(Color.black, 0f));
+        var jawObj = Part(root.transform, PrimitiveType.Cube, new Vector3(0, 1.73f, 0.17f), new Vector3(0.2f, 0.14f, 0.05f), Lit(new Color(0.25f, 0f, 0f), 0f));
+        c.jaw = jawObj.transform;
+        var teeth = Lit(new Color(0.9f, 0.88f, 0.8f), 0.5f);
+        for (int t = 0; t < 5; t++)
+        {
+            Part(root.transform, PrimitiveType.Cube, new Vector3(-0.08f + t * 0.04f, 1.79f, 0.2f), new Vector3(0.02f, 0.05f, 0.015f), teeth);
+            Part(root.transform, PrimitiveType.Cube, new Vector3(-0.08f + t * 0.04f, 1.67f, 0.2f), new Vector3(0.02f, 0.04f, 0.015f), teeth);
+        }
         c.eyeMat = Glow(eye, 1f); c.eyeColor = eye;
-        var e1 = Part(root.transform, PrimitiveType.Sphere, new Vector3(-0.09f, 1.9f, 0.16f), new Vector3(0.1f, 0.07f, 0.07f), c.eyeMat);
-        var e2 = Part(root.transform, PrimitiveType.Sphere, new Vector3(0.09f, 1.9f, 0.16f), new Vector3(0.1f, 0.07f, 0.07f), c.eyeMat);
+        var e1 = Part(root.transform, PrimitiveType.Sphere, new Vector3(-0.095f, 1.9f, 0.16f), new Vector3(0.13f, 0.09f, 0.08f), c.eyeMat);
+        var e2 = Part(root.transform, PrimitiveType.Sphere, new Vector3(0.095f, 1.9f, 0.16f), new Vector3(0.13f, 0.09f, 0.08f), c.eyeMat);
         c.eyes = new[] { e1.GetComponent<Renderer>(), e2.GetComponent<Renderer>() };
         // brazos: pivote en el hombro, la malla crece en +z
         for (int s = -1; s <= 1; s += 2)
