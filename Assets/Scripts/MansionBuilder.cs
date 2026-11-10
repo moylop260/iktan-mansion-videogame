@@ -768,7 +768,7 @@ public static partial class MansionBuilder
         Room("Pasillo del segundo piso", 12.4f, 15.85f, 10.0f, 16f, y, sWood, false, 1f, false);
         Room("Pasillo del segundo piso", 15.85f, 16f, 0f, 16f, y, sWood, false, 1f, false);
         Chandelier(12f, y + H, 2.5f);
-        AddLight(new Vector3(12f, y + 2.7f, 13f), Warm, 1.6f, 10f);
+        AddLight(new Vector3(12f, y + 2.7f, 13f), new Color(0.85f, 0.65f, 1f), 1.6f, 10f);
         Box("Alfombra", new Vector3(12f, y + 0.03f, 13f), new Vector3(2.2f, 0.02f, 5.5f), sCarpet, false);
         Window(true, 16f, 12f, y, -1);
         Painting(false, 8f, 6.0f, y + 1.9f, 1, 0.9f, 1.2f, 1);
