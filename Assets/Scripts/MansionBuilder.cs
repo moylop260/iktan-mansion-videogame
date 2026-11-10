@@ -27,12 +27,14 @@ public static partial class MansionBuilder
 
     // superficies
     static Surf sWood, sDark, sMarble, sPlaster, sStone, sCarpet, sBooks;
-    static Surf wpSala, wpHall, wpCocina, wpC1, wpBano, wpBib, wpPiano, wpOfi, wpC3, wpC4;
+    static Surf wpSala, wpHall, wpHall2, wpCocina, wpC1, wpBano, wpBib, wpPiano, wpOfi, wpC3, wpC4;
+    static Surf floorBlue, floorRed, floorTerracotta, floorPink, floorMarbleTeal;
     static readonly Color Warm = new Color(1f, 0.8f, 0.5f);
     static readonly Color Gold = new Color(0.75f, 0.58f, 0.2f);
     static readonly Color White = new Color(0.85f, 0.85f, 0.85f);
 
     static Surf S(Texture2D t, float tile, float smooth = 0.1f) { return new Surf { tex = t, tint = Color.white, tile = tile, smooth = smooth }; }
+    static Surf ST(Texture2D t, float tile, Color tint, float smooth = 0.1f) { return new Surf { tex = t, tint = tint, tile = tile, smooth = smooth }; }
     static Surf C(Color c, float smooth = 0.1f) { return new Surf { tex = null, tint = c, tile = 1f, smooth = smooth }; }
 
     static void InitSurfaces()
@@ -44,16 +46,24 @@ public static partial class MansionBuilder
         sStone = S(TexGen.Stone(), 3.0f, 0.05f);
         sCarpet = S(TexGen.Carpet(), 2.5f, 0.05f);
         sBooks = S(TexGen.Books(), 2.0f, 0.05f);
-        wpSala = S(TexGen.Wallpaper("sala", new Color(0.12f, 0.30f, 0.20f), new Color(0.09f, 0.23f, 0.15f)), 2.0f);
-        wpHall = S(TexGen.Wallpaper("hall", new Color(0.40f, 0.08f, 0.10f), new Color(0.30f, 0.06f, 0.08f)), 2.0f);
-        wpCocina = S(TexGen.Tile("cocina", new Color(0.8f, 0.8f, 0.72f), new Color(0.55f, 0.65f, 0.55f)), 2.0f, 0.4f);
-        wpC1 = S(TexGen.Wallpaper("c1", new Color(0.16f, 0.22f, 0.42f), new Color(0.12f, 0.17f, 0.34f)), 2.0f);
-        wpBano = S(TexGen.Tile("bano", new Color(0.55f, 0.72f, 0.74f), new Color(0.42f, 0.58f, 0.6f)), 2.0f, 0.5f);
+        // Cada cuarto tiene su propio color para que nunca se confunda uno con otro:
+        // vestíbulo vino, sala verde, cocina amarilla, cuarto 1 azul, baño aqua, biblioteca nogal con alfombra roja,
+        // pasillo violeta, cuarto 3 rosa, piano negro y carmesí, cuarto 4 terracota, oficina verde pizarra.
+        wpSala = S(TexGen.Wallpaper("sala", new Color(0.08f, 0.42f, 0.2f), new Color(0.05f, 0.3f, 0.14f)), 2.0f);
+        wpHall = S(TexGen.Wallpaper("hall", new Color(0.46f, 0.07f, 0.1f), new Color(0.32f, 0.05f, 0.08f)), 2.0f);
+        wpHall2 = S(TexGen.Wallpaper("hall2", new Color(0.42f, 0.2f, 0.58f), new Color(0.3f, 0.14f, 0.45f)), 2.0f);
+        wpCocina = S(TexGen.Tile("cocina", new Color(0.97f, 0.84f, 0.3f), new Color(0.88f, 0.7f, 0.18f)), 2.0f, 0.4f);
+        wpC1 = S(TexGen.Wallpaper("c1", new Color(0.13f, 0.28f, 0.7f), new Color(0.08f, 0.19f, 0.52f)), 2.0f);
+        wpBano = S(TexGen.Tile("bano", new Color(0.3f, 0.78f, 0.82f), new Color(0.2f, 0.62f, 0.7f)), 2.0f, 0.5f);
         wpBib = S(TexGen.Panel(), 2.0f);
-        wpPiano = S(TexGen.Wallpaper("piano", new Color(0.32f, 0.05f, 0.09f), new Color(0.22f, 0.03f, 0.06f)), 2.0f);
-        wpOfi = S(TexGen.Panel(), 2.0f);
-        wpC3 = S(TexGen.Wallpaper("c3", new Color(0.6f, 0.54f, 0.4f), new Color(0.52f, 0.46f, 0.34f)), 2.0f);
-        wpC4 = S(TexGen.Wallpaper("c4", new Color(0.26f, 0.32f, 0.27f), new Color(0.2f, 0.26f, 0.21f)), 2.0f);
+        wpPiano = S(TexGen.Wallpaper("piano", new Color(0.42f, 0.03f, 0.07f), new Color(0.1f, 0.015f, 0.03f)), 2.0f);
+        wpOfi = S(TexGen.Wallpaper("ofi", new Color(0.2f, 0.34f, 0.3f), new Color(0.14f, 0.25f, 0.22f)), 2.0f);
+        wpC3 = S(TexGen.Wallpaper("c3", new Color(0.88f, 0.52f, 0.62f), new Color(0.78f, 0.42f, 0.54f)), 2.0f);
+        wpC4 = S(TexGen.Wallpaper("c4", new Color(0.82f, 0.43f, 0.18f), new Color(0.68f, 0.33f, 0.12f)), 2.0f);
+        floorBlue = ST(TexGen.Carpet(), 2.5f, new Color(0.45f, 0.6f, 1.3f), 0.05f);
+        floorRed = S(TexGen.Carpet(), 2.5f, 0.05f);
+        floorPink = ST(TexGen.Carpet(), 2.5f, new Color(1.3f, 0.75f, 0.9f), 0.05f);
+        floorTerracotta = S(TexGen.Tile("c4piso", new Color(0.72f, 0.36f, 0.2f), new Color(0.6f, 0.28f, 0.14f)), 2.0f, 0.3f);
     }
 
     // ------------------------------------------------------------------ materiales y mallas
@@ -344,10 +354,10 @@ public static partial class MansionBuilder
         Box("Alfombra", new Vector3(cx, y0 + 0.03f, cz), new Vector3(w, 0.02f, d), sCarpet, false);
     }
 
-    static void Room(string name, float x0, float x1, float z0, float z1, float y0, Surf floor, bool light, float intensity = 1.6f, bool zone = true)
+    static void Room(string name, float x0, float x1, float z0, float z1, float y0, Surf floor, bool light, float intensity = 1.6f, bool zone = true, Color lightColor = default(Color))
     {
         Box("PisoCuarto", new Vector3((x0 + x1) / 2f, y0 + 0.01f, (z0 + z1) / 2f), new Vector3(x1 - x0, 0.02f, z1 - z0), floor, false);
-        if (light) AddLight(new Vector3((x0 + x1) / 2f, y0 + 2.6f, (z0 + z1) / 2f), Warm, intensity, 9f);
+        if (light) AddLight(new Vector3((x0 + x1) / 2f, y0 + 2.6f, (z0 + z1) / 2f), lightColor.a > 0f ? lightColor : Warm, intensity, 9f);
         if (zone) gm.zones.Add(new Zone { name = name, x0 = x0, x1 = x1, z0 = z0, z1 = z1, y0 = y0 });
     }
 
@@ -621,11 +631,11 @@ public static partial class MansionBuilder
         Wall(false, 12f, 12f, 16f, y, wpBano, wpHall);
 
         // cuartos: piso + luz + zona
-        Room("Sala", 0f, 8f, 0f, 8f, y, sWood, true);
-        Room("Cuarto 1", 0f, 8f, 8f, 16f, y, sWood, true, 1.3f);
-        Room("Cocina", 16f, 24f, 0f, 8f, y, S(TexGen.Tile("cocinapiso", new Color(0.75f, 0.75f, 0.7f), new Color(0.25f, 0.28f, 0.25f)), 2.0f, 0.5f), true, 1.8f);
-        Room("Biblioteca", 16f, 24f, 8f, 16f, y, sDark, true, 1.3f);
-        Room("Baño", 8f, 12f, 12f, 16f, y, S(TexGen.Tile("banopiso", new Color(0.85f, 0.88f, 0.88f), new Color(0.5f, 0.6f, 0.62f)), 2.0f, 0.6f), true, 1.4f);
+        Room("Sala", 0f, 8f, 0f, 8f, y, sWood, true, 1.6f, true, new Color(1f, 0.7f, 0.4f));
+        Room("Cuarto 1", 0f, 8f, 8f, 16f, y, floorBlue, true, 1.5f, true, new Color(0.6f, 0.7f, 1f));
+        Room("Cocina", 16f, 24f, 0f, 8f, y, S(TexGen.Tile("cocinapiso", new Color(0.92f, 0.92f, 0.88f), new Color(0.12f, 0.12f, 0.14f)), 2.0f, 0.5f), true, 2.0f, true, new Color(1f, 1f, 0.92f));
+        Room("Biblioteca", 16f, 24f, 8f, 16f, y, floorRed, true, 1.4f, true, new Color(1f, 0.72f, 0.3f));
+        Room("Baño", 8f, 12f, 12f, 16f, y, S(TexGen.Tile("banopiso", new Color(0.95f, 0.97f, 0.97f), new Color(0.35f, 0.7f, 0.75f)), 2.0f, 0.6f), true, 1.6f, true, new Color(0.6f, 1f, 1f));
         Room("Vestíbulo", 8f, 16f, 0f, 12f, y, sMarble, false);
         Room("Vestíbulo", 12f, 16f, 12f, 16f, y, sMarble, false, 1f, false);
         Chandelier(12f, 3.1f, 3.5f);
@@ -723,24 +733,24 @@ public static partial class MansionBuilder
         float y = F2;
         // paredes exteriores
         Wall(true, 0f, 0f, 8f, y, sStone, wpC3);
-        Wall(true, 0f, 8f, 16f, y, sStone, wpHall);
+        Wall(true, 0f, 8f, 16f, y, sStone, wpHall2);
         Wall(true, 0f, 16f, 24f, y, sStone, wpC4);
         Wall(true, 16f, 0f, 8f, y, wpPiano, sStone);
-        Wall(true, 16f, 8f, 16f, y, wpHall, sStone);
+        Wall(true, 16f, 8f, 16f, y, wpHall2, sStone);
         Wall(true, 16f, 16f, 24f, y, wpOfi, sStone);
         Wall(false, 0f, 0f, 8f, y, sStone, wpC3);
         Wall(false, 0f, 8f, 16f, y, sStone, wpPiano);
         Wall(false, 24f, 0f, 8f, y, wpC4, sStone);
         Wall(false, 24f, 8f, 16f, y, wpOfi, sStone);
         // interiores
-        Wall(false, 8f, 0f, 8f, y, wpC3, wpHall, G(3f, 1.6f));
-        Wall(false, 8f, 8f, 16f, y, wpPiano, wpHall, G(10f, 1.6f));
-        Wall(false, 16f, 0f, 8f, y, wpHall, wpC4, G(1.8f, 1.6f));
-        Wall(false, 16f, 8f, 16f, y, wpHall, wpOfi, G(13f, 1.6f));
+        Wall(false, 8f, 0f, 8f, y, wpC3, wpHall2, G(3f, 1.6f));
+        Wall(false, 8f, 8f, 16f, y, wpPiano, wpHall2, G(10f, 1.6f));
+        Wall(false, 16f, 0f, 8f, y, wpHall2, wpC4, G(1.8f, 1.6f));
+        Wall(false, 16f, 8f, 16f, y, wpHall2, wpOfi, G(13f, 1.6f));
         Wall(true, 8f, 0f, 8f, y, wpC3, wpPiano);
         Wall(true, 8f, 16f, 24f, y, wpC4, wpOfi);
 
-        Room("Cuarto 3", 0f, 8f, 0f, 8f, y, sWood, true, 1.3f);
+        Room("Cuarto 3", 0f, 8f, 0f, 8f, y, floorPink, true, 1.5f, true, new Color(1f, 0.72f, 0.85f));
         Room("Salón del piano", 0f, 8f, 8f, 16f, y, sDark, false);
         Room("Cuarto 4", 16f, 24f, 0f, 8f, y, floorTerracotta, true, 1.5f, true, new Color(1f, 0.6f, 0.3f));
         Room("Oficina", 16f, 24f, 8f, 16f, y, sDark, true, 1.5f, true, new Color(0.7f, 1f, 0.8f));
