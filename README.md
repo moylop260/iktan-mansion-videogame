@@ -46,6 +46,13 @@ open Builds/Mansion.app
 ```
 It takes a few minutes. Adjust the Unity version in the path to the one installed (`ls /Applications/Unity/Hub/Editor`).
 
+**Universal app (Intel + Apple silicon)** for copying to another Mac, e.g. an older Intel one (macOS 11+):
+```sh
+/Applications/Unity/Hub/Editor/6000.6.8f1/Unity.app/Contents/MacOS/Unity -batchmode -quit -projectPath . -executeMethod MansionEditor.BuildMacUniversal -logFile build.log
+```
+The app is written to `Builds/Universal/Mansion.app`. On the other Mac, right-click → *Open*, or run
+`xattr -dr com.apple.quarantine Mansion.app` once.
+
 **From Unity**
 1. Unity Hub → *Add project from disk* → this folder, with Unity 6.
 2. Menu **Mansion → Compilar para macOS**, or just press **Play** in the editor to play without building.

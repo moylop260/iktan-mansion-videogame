@@ -155,4 +155,26 @@ public static class MansionEditor
         Debug.Log("Compilación " + (ok ? "OK" : "FALLÓ") + ": " + report.summary.outputPath);
         if (Application.isBatchMode) EditorApplication.Exit(ok ? 0 : 1);
     }
+
+    /// <summary>Builds a universal app (Intel + Apple silicon) in Builds/Universal/Mansion.app.</summary>
+    [MenuItem("Mansion/Compilar para macOS (Intel + Apple silicon)")]
+    public static void BuildMacUniversal()
+    {
+        if (!File.Exists(ScenePath)) Setup();
+        SetupRendering();
+        ApplySettings();
+        EditorUserBuildSettings.SetPlatformSettings("Standalone", "OSXUniversal", "Architecture", "x64arm64");
+        Directory.CreateDirectory("Builds/Universal");
+        var opts = new BuildPlayerOptions
+        {
+            scenes = new[] { ScenePath },
+            locationPathName = "Builds/Universal/Mansion.app",
+            target = BuildTarget.StandaloneOSX,
+            options = BuildOptions.None
+        };
+        var report = BuildPipeline.BuildPlayer(opts);
+        bool ok = report.summary.result == BuildResult.Succeeded;
+        Debug.Log("Compilación " + (ok ? "OK" : "FALLÓ") + ": " + report.summary.outputPath);
+        if (Application.isBatchMode) EditorApplication.Exit(ok ? 0 : 1);
+    }
 }
