@@ -6,6 +6,21 @@ A Unity 3D project for macOS, in a classic survival-horror style
 
 **Version:** `0.2.0`
 
+## Quick start (how to launch the game)
+The built app lives in `Builds/` (git-ignored, so it only exists on the machine that built it).
+
+```sh
+cd ~/videojuego_iktan/mansion
+open Builds/Mansion.app
+```
+
+- If macOS refuses to open it (the app is unsigned): right-click `Mansion.app` → *Open* → *Open*,
+  or run `xattr -dr com.apple.quarantine Builds/Mansion.app` once.
+- If `Builds/Mansion.app` does not exist (fresh clone or after code changes), build it first with the
+  command in *Open and build* below, then run `open Builds/Mansion.app`.
+- Alternative: open the project in Unity 6 and press **Play** in the editor.
+- Quit the game with **Esc** → pause menu, or **Cmd+Q**.
+
 ## How to play
 - **WASD** move · **Mouse** look · **Shift** run
 - **E** interact · **F** flashlight (needs flashlight + batteries) · **H** hint · **Tab** inventory · **Esc** pause
