@@ -16,3 +16,5 @@ rules of the game; change them only by adding a new ADR that supersedes the old 
 | [0009](0009-testing-and-coverage.md) | Automated tests and code coverage |
 | [0010](0010-workflow-versioning.md) | One commit per change, bump2version, public GitHub repo |
 | [0011](0011-language-and-authorship.md) | Spanish content, English artifacts, authorship |
+| [0012](0012-distinct-rooms.md) | Every room looks different (colour, floor, light) |
+| [0013](0013-mirrors-and-player-body.md) | Real mirrors and a player body that only shows in mirrors |

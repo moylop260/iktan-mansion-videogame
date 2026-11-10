@@ -28,6 +28,9 @@ choose the right path.
 Safe code: 1973 = the year Javier bought the house, written in the living-room diary
 ("Compré esta casa en 1973"). Wrong codes: 1937, 1793.
 
+Locks are drawn in the key colour: the library door has a green bolt lock, the stair gate (an iron grate you can
+see through) a blue padlock, the office door a yellow lock and the front door a golden one.
+
 ## Winning route
 Kitchen drawer → bedroom 1 nightstand → bathroom sink → library door (green) → blue book → stair gate (blue) →
 bedroom 3 dresser → piano room (flashlight on) → piano → office door (yellow) → safe (1973) → front door.

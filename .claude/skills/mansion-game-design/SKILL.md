@@ -33,6 +33,9 @@ checkpoint. It was designed by a 13-year-old, **Iktan Lopez (IkLpz)**, in a hand
 | `Creatures.cs` | procedural monsters (`Mon.Figure`, `Spider`, `Doll`, `PaleArm`) |
 | `AudioGen.cs` / `AudioManager.cs` | synthesized sounds / playback, ambient drone, random scares |
 | `TexGen.cs` (+ `TexGen.Extra.cs`) | procedural textures and inventory icons |
+| `MansionBuilder.Containers.cs`, `Openable.cs` | drawers/doors that open and show their contents, pantry, dresser, nightstand, fridge |
+| `MansionBuilder.Props.cs` | open diary, unmade beds, ornate mirror, cobwebs and the `KFrame` local-frame helper |
+| `MirrorSurface.cs`, `PlayerAvatar.cs`, `Assets/Shaders/MirrorScreen.shader` | real mirrors and the player body |
 | `PlayerController.cs`, `Inp.cs`, `Interactable.cs`, `Door.cs`, `Flicker.cs` | movement, input wrapper, interaction, doors, light flicker |
 | `Assets/Editor/MansionEditor.cs` | URP setup, scene, macOS build menu |
 | `Assets/Tests/{EditMode,PlayMode}` | automated tests |
@@ -52,6 +55,11 @@ checkpoint. It was designed by a 13-year-old, **Iktan Lopez (IkLpz)**, in a hand
 6. **One change per commit, pushed to GitHub** (ADR-0010). Versions with `bump2version`.
 7. **Tests with every behaviour change** (ADR-0009); keep `EditMode` and `PlayMode` green.
 8. Game content is Spanish; every artifact (code, docs, commits, PRs) is English.
+
+## More rules from the designer's father
+- Automatic checkpoint on every key found and every door opened (ADR-0004).
+- Every room gets its own colour (ADR-0012). Mirrors are real (ADR-0013).
+- Containers must really open and show what the text says (ADR-0006).
 
 ## Recipes
 - **Add a trap**: build the prop group in `MansionBuilder` (named, with `Interactable.Add` + options), call
