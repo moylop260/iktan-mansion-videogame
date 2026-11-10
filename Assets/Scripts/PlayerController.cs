@@ -10,6 +10,20 @@ public class PlayerController : MonoBehaviour
 
     void Awake() { cc = GetComponent<CharacterController>(); }
 
+    public float Yaw { get { return yaw; } }
+    public float Pitch { get { return pitch; } }
+
+    /// <summary>Control directo de la cámara (escenas de muerte): posición del ojo, giro, inclinación y balanceo.</summary>
+    public void SetView(Vector3 camWorldPos, float yawDeg, float pitchDeg, float rollDeg)
+    {
+        if (cc.enabled) cc.enabled = false;
+        transform.position = camWorldPos - Vector3.up * 1.65f;
+        yaw = yawDeg; pitch = pitchDeg;
+        transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+        camT.localPosition = new Vector3(0f, 1.65f, 0f);
+        camT.localRotation = Quaternion.Euler(pitch, 0f, rollDeg);
+    }
+
     public void Teleport(Vector3 pos, float yawDeg)
     {
         cc.enabled = false;

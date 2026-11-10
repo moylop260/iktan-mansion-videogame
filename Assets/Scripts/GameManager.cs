@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-public enum Mode { Title, Playing, Choice, Paused, GameOver, Win, Ended, Inventory }
+public enum Mode { Title, Playing, Choice, Paused, GameOver, Win, Ended, Inventory, Death }
 
 [Serializable]
 public class SaveData
@@ -65,6 +65,15 @@ public class GameManager : MonoBehaviour
     string endText = "", deathText = ""; float deathTime;
     Interactable hover;
     public AudioManager audio;
+    public Camera cam;
+    // capas de pantalla para las escenas de muerte
+    public Color fadeColor = Color.black, flashColor = Color.white;
+    public float fadeAlpha, flashAlpha, staticAlpha;
+    Texture2D[] noiseTex;
+    Vignette vg; ChromaticAberration ca; LensDistortion lens;
+    float fxPulse;
+    Light moon;
+    static readonly Color AmbientDefault = new Color(0.10f, 0.10f, 0.14f);
     int chSel, invSel;
     string zoneName = "", bannerText = ""; float bannerStart = -10f;
     string popupItem = ""; float popupStart = -10f;
@@ -91,14 +100,14 @@ public class GameManager : MonoBehaviour
 
         Application.runInBackground = false;
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(0.10f, 0.10f, 0.14f);
+        RenderSettings.ambientLight = AmbientDefault;
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
         RenderSettings.fogDensity = 0.025f;
         RenderSettings.fogColor = new Color(0.03f, 0.03f, 0.05f);
         RenderSettings.skybox = null;
 
-        var moon = new GameObject("Luna").AddComponent<Light>();
+        moon = new GameObject("Luna").AddComponent<Light>();
         moon.type = LightType.Directional; moon.intensity = 0.25f; moon.color = new Color(0.55f, 0.65f, 1f);
         moon.transform.rotation = Quaternion.Euler(50f, 30f, 0f);
 
@@ -125,6 +134,7 @@ public class GameManager : MonoBehaviour
         cam.transform.localPosition = new Vector3(0f, 1.65f, 0f);
         cam.tag = "MainCamera";
         var c = cam.AddComponent<Camera>();
+        this.cam = c;
         c.fieldOfView = 72f; c.nearClipPlane = 0.05f; c.farClipPlane = 120f;
         c.clearFlags = CameraClearFlags.SolidColor; c.backgroundColor = new Color(0.02f, 0.02f, 0.03f);
         cam.AddComponent<AudioListener>();
@@ -150,9 +160,11 @@ public class GameManager : MonoBehaviour
         vol.isGlobal = true;
         var prof = ScriptableObject.CreateInstance<VolumeProfile>();
         vol.profile = prof;
-        var vg = prof.Add<Vignette>(true); vg.intensity.Override(0.42f); vg.smoothness.Override(0.45f);
+        vg = prof.Add<Vignette>(true); vg.intensity.Override(0.42f); vg.smoothness.Override(0.45f);
+        ca = prof.Add<ChromaticAberration>(true); ca.intensity.Override(0f);
+        lens = prof.Add<LensDistortion>(true); lens.intensity.Override(0f);
         var gr = prof.Add<FilmGrain>(true); gr.type.Override(FilmGrainLookup.Thin1); gr.intensity.Override(0.35f);
-        var ca = prof.Add<ColorAdjustments>(true); ca.saturation.Override(-18f); ca.contrast.Override(14f); ca.postExposure.Override(0.35f);
+        var colorAdj = prof.Add<ColorAdjustments>(true); colorAdj.saturation.Override(-18f); colorAdj.contrast.Override(14f); colorAdj.postExposure.Override(0.35f);
         var bl = prof.Add<Bloom>(true); bl.threshold.Override(0.9f); bl.intensity.Override(0.55f); bl.scatter.Override(0.6f);
         var tm = prof.Add<Tonemapping>(true); tm.mode.Override(TonemappingMode.ACES);
     }
@@ -243,6 +255,7 @@ public class GameManager : MonoBehaviour
     void LoadSave(SaveData d, bool restoreDeaths)
     {
         Time.timeScale = 1f;
+        ResetFx();
         items.Clear(); foreach (var i in d.items) if (!items.Contains(i)) items.Add(i);
         doors.Clear(); foreach (var i in d.doors) doors.Add(i);
         if (restoreDeaths) deaths = d.deaths;
@@ -271,6 +284,7 @@ public class GameManager : MonoBehaviour
     public void NewGame()
     {
         Time.timeScale = 1f;
+        ResetFx();
         PlayerPrefs.DeleteKey(KEY);
         items.Clear(); doors.Clear(); deaths = 0; currentCp = ""; last = null; zoneName = "";
         RebuildWorld();
@@ -298,7 +312,7 @@ public class GameManager : MonoBehaviour
         Say("Entras a la mansión y la puerta se cierra detrás de ti. Busca cómo salir... y ten cuidado con lo que abres. (H = pista)");
     }
 
-    void ToTitle() { Time.timeScale = 1f; mode = Mode.Title; }
+    void ToTitle() { Time.timeScale = 1f; ResetFx(); mode = Mode.Title; }
 
     void Quit()
     {
@@ -307,6 +321,28 @@ public class GameManager : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    // ---------------------------------------------------------------- efectos de pantalla
+    /// <summary>Golpe visual (viñeta, aberración cromática, distorsión) que se desvanece solo.</summary>
+    public void Pulse(float v) { fxPulse = Mathf.Max(fxPulse, v); }
+
+    /// <summary>Apaga (o enciende) todas las luces de la mansión y la luz ambiente.</summary>
+    public void SetDark(bool dark)
+    {
+        RenderSettings.ambientLight = dark ? new Color(0.008f, 0.008f, 0.012f) : AmbientDefault;
+        if (moon != null) moon.enabled = !dark;
+        if (worldRoot != null) foreach (var l in worldRoot.GetComponentsInChildren<Light>(true)) l.enabled = !dark;
+    }
+
+    public void EndDeath() { mode = Mode.GameOver; deathTime = Time.unscaledTime; }
+
+    void ResetFx()
+    {
+        fadeAlpha = 0f; flashAlpha = 0f; staticAlpha = 0f; fxPulse = 0f;
+        SetDark(false);
+        audio.SetHeart(0f); audio.HeartSpeed(1f);
+        if (cam != null) cam.fieldOfView = 72f;
     }
 
     string Hint()
@@ -324,7 +360,7 @@ public class GameManager : MonoBehaviour
     // ---------------------------------------------------------------- actualización
     void Update()
     {
-        bool lockCursor = mode == Mode.Playing;
+        bool lockCursor = mode == Mode.Playing || mode == Mode.Death;
         Cursor.lockState = lockCursor ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible = !lockCursor;
 
@@ -337,6 +373,8 @@ public class GameManager : MonoBehaviour
             case Mode.Win:
             case Mode.Ended: amb = 0.1f; break;
         }
+        fxPulse = Mathf.MoveTowards(fxPulse, 0f, Time.unscaledDeltaTime * 1.2f);
+        if (vg != null) { vg.intensity.value = 0.42f + 0.3f * fxPulse; ca.intensity.value = fxPulse; lens.intensity.value = -0.35f * fxPulse; }
         audio.SetAmbient(amb);
         audio.Tick(mode == Mode.Playing, player.transform.position);
 
@@ -488,6 +526,30 @@ public class GameManager : MonoBehaviour
             case Mode.Win: DrawEnd(W, H, new Color(0f, 0.15f, 0.05f, 0.92f), "¡ESCAPASTE!", "Volver al menú (Enter)"); break;
             case Mode.Ended: DrawEnd(W, H, new Color(0f, 0f, 0f, 0.92f), "FIN", "Volver al menú (Enter)"); break;
         }
+        DrawOverlays(W, H);
+    }
+
+    void DrawOverlays(float W, float H)
+    {
+        if (staticAlpha > 0.01f)
+        {
+            if (noiseTex == null)
+            {
+                noiseTex = new Texture2D[4];
+                for (int k = 0; k < 4; k++)
+                {
+                    var t = new Texture2D(96, 96, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point };
+                    var px = new Color[96 * 96];
+                    for (int i = 0; i < px.Length; i++) { float v = UnityEngine.Random.value; px[i] = new Color(v, v, v, 1f); }
+                    t.SetPixels(px); t.Apply(); noiseTex[k] = t;
+                }
+            }
+            var old = GUI.color; GUI.color = new Color(1f, 1f, 1f, staticAlpha);
+            GUI.DrawTexture(new Rect(0, 0, W, H), noiseTex[(int)(Time.unscaledTime * 24f) % 4]);
+            GUI.color = old;
+        }
+        if (flashAlpha > 0.01f) Rect2(new Rect(0, 0, W, H), new Color(flashColor.r, flashColor.g, flashColor.b, flashAlpha));
+        if (fadeAlpha > 0.01f) Rect2(new Rect(0, 0, W, H), new Color(fadeColor.r, fadeColor.g, fadeColor.b, fadeAlpha));
     }
 
     void DrawHud(float W, float H)
