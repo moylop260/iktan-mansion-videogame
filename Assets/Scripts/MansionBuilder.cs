@@ -290,8 +290,8 @@ public static partial class MansionBuilder
         if (curtains)
         {
             var red = C(new Color(0.35f, 0.04f, 0.06f), 0.05f);
-            Box("Cortina", Pos(alongX, along - 0.85f, y0 + 1.85f, pz + sign * 0.07f), Sz(alongX, 0.35f, 2.3f, 0.1f), red, false);
-            Box("Cortina", Pos(alongX, along + 0.85f, y0 + 1.85f, pz + sign * 0.07f), Sz(alongX, 0.35f, 2.3f, 0.1f), red, false);
+            Box("CortinaVentana", Pos(alongX, along - 0.85f, y0 + 1.85f, pz + sign * 0.07f), Sz(alongX, 0.35f, 2.3f, 0.1f), red, false);
+            Box("CortinaVentana", Pos(alongX, along + 0.85f, y0 + 1.85f, pz + sign * 0.07f), Sz(alongX, 0.35f, 2.3f, 0.1f), red, false);
             Box("Galeria", Pos(alongX, along, y0 + 3.0f, pz + sign * 0.07f), Sz(alongX, 2.3f, 0.12f, 0.12f), sDark, false);
         }
         AddLight(Pos(alongX, along, y0 + 1.9f, inner + sign * 0.7f).ToVec(), new Color(0.45f, 0.58f, 1f), 1.1f, 5.5f);
@@ -650,7 +650,18 @@ public static partial class MansionBuilder
         });
         var gate = MakeDoor("reja", new Vector3(12.4f, y, 3.7f), true, 3.45f, 2.5f, C(new Color(0.2f, 0.2f, 0.25f), 0.6f), true, new Color(0.3f, 0.5f, 1f));
         KeyDoor(gate, "Llave azul", "Reja de la escalera", "La reja de la escalera está cerrada con un candado azul.", "Usas la llave azul y la reja de la escalera se abre. Ya puedes subir.");
-        Look(P("Reloj", 15.5f, y, 15.4f, 0.6f, 2.0f, 0.5f, sDark), "Reloj de pie", "El reloj está detenido a las 3:00 de la madrugada.");
+        var reloj = GrandfatherClock(15.5f, y, 15.6f, Vector3.back, 0.6f, 0.5f, 2.2f);   // la carátula marca las 3:00, detenido
+        reloj.name = "Reloj";
+        Look(reloj, "Reloj de pie", "El reloj está detenido a las 3:00 de la madrugada.");
+        ConsoleTable(13.4f, y, 15.65f, Vector3.back, 1.4f, 0.4f, 0.85f);
+        Vase(13.0f, 0.85f, 15.65f);
+        Candelabra(13.9f, 0.85f, 15.65f, 0.4f);
+        Armor(8.75f, y, 11.2f, Vector3.right);
+        HallBench(9.9f, y, 0.55f, Vector3.forward, 1.4f);
+        Plant(14.9f, y, 0.7f, 1.1f);
+        UmbrellaStand(13.7f, y, 0.45f);
+        Barometer(8.3f, 1.7f, 7.4f, Vector3.right);
+        WallClock(8.3f, 2.3f, 3.0f, Vector3.right);
         Box("Alfombra", new Vector3(12f, 0.03f, 6f), new Vector3(2.4f, 0.02f, 11.5f), sCarpet, false);
         P("Pilastra", 8.4f, y, 5.0f, 0.5f, H, 0.5f, sMarble);
         P("Pilastra", 8.4f, y, 8.6f, 0.5f, H, 0.5f, sMarble);
@@ -666,10 +677,17 @@ public static partial class MansionBuilder
         Fireplace(4f, 8f);
         Painting(false, 0f, 2.5f, 1.9f, 1, 0.9f, 1.2f, 2);
         Rug(4.2f, y, 4.0f, 3.6f, 2.8f);
-        Look(P("Sofa", 2.5f, y, 1.0f, 3.0f, 0.8f, 0.9f, new Color(0.45f, 0.1f, 0.12f)), "Sofá viejo", "Un sofá cubierto de polvo. No hay nada.");
-        OpenDiary(null, 4.7f, 0.8f, 5.0f, -90f);   // el diario que nombra el texto se ve abierto sobre la mesa
-        Act(P("MesaSala", 4.5f, y, 5.0f, 2.0f, 0.8f, 1.0f, sWood), "Mesa con un diario", "Leer el diario", () =>
+        Look(Sofa(3.0f, y, 0.65f, Vector3.forward, 2.6f, 0.95f, 0.85f), "Sofá viejo", "Un sofá cubierto de polvo. No hay nada.");
+        var mesaSala = CoffeeTable(3.0f, y, 2.5f, Vector3.forward, 1.5f, 0.8f, 0.5f);
+        mesaSala.name = "MesaSala";
+        OpenDiary(mesaSala, 3.1f, 0.5f, 2.5f, -90f);   // el diario que nombra el texto se ve abierto sobre la mesa
+        Act(mesaSala, "Mesa con un diario", "Leer el diario", () =>
             gm.Say("Diario de Javier, 29 de octubre de 1993: «Compré esta casa en 1973. Nunca debí hacerlo. Hay algo en los espejos.»"));
+        Armchair(1.7f, y, 6.9f, Vector3.back);
+        Armchair(6.3f, y, 6.9f, Vector3.back);
+        TeaTrolley(6.6f, y, 1.2f, Vector3.left);
+        SideTablePhone(7.45f, y, 5.3f, Vector3.left);
+        Plant(7.2f, y, 7.1f, 1f);
         var mirror = OrnateMirror("Espejo", 0.15f, 1.6f, 5.5f, Vector3.right, 1.2f, 1.8f, true);   // espejo real: muestra tu reflejo (retrasado un segundo)
         Choose(mirror, "Espejo", "Tu reflejo te mira... un segundo tarde.",
             O("Mirarte en el espejo", () => gm.Die("mirror", mirror)),
@@ -682,14 +700,23 @@ public static partial class MansionBuilder
         Choose(fridge, "Refrigerador", "Zumba muy fuerte y gotea algo oscuro.",
             O("Abrir el refri", () => gm.Die("fridge", fridge)),
             O("Dejarlo cerrado", () => gm.Say("Mejor no abrir el refri...")));
-        P("MostradorCocina", 20f, y, 0.7f, 5f, 1.0f, 0.9f, C(new Color(0.55f, 0.55f, 0.58f), 0.5f));
-        var cajon = KitchenDrawerUnit("Mostrador", 20f, y, 1.15f, Vector3.forward, 0.9f, 0.2f);   // el cajón se desliza y deja ver la linterna
+        var mesada = KitchenCounter(20f, y, 0.55f, Vector3.forward, 5.0f, 0.8f, 0.9f);
+        mesada.name = "MostradorCocina";
+        RangeHood(22.05f, 1.65f, 0.5f, Vector3.forward, 0.75f);
+        HangingPots(19.2f, 1.9f, 0.35f, 1.6f);
+        var cajon = KitchenDrawerUnit("Mostrador", 19.2f, y, 0.97f, Vector3.forward, 0.9f, 0.2f);   // el cajón se desliza y deja ver la linterna
         ContainerInteract(cajon, "Cajón del mostrador", cajon.GetComponent<Openable>(), "Linterna", "Abrir el cajón",
             "Dentro del cajón hay cubiertos, fósforos y una linterna vieja.", "Tomar la linterna", "Encontraste una linterna.", "El cajón está vacío.", "Cerrar el cajón");
         var alacena = OpenablePantry("Alacena", 17.0f, y, 7.4f, Vector3.back, 1.4f, 0.9f, 2.0f);
         ContainerInteract(alacena, "Alacena", alacena.GetComponent<Openable>(), null, "Abrir la alacena",
             "Solo latas vencidas y telarañas.", "", "", "Solo latas vencidas y telarañas.", "Cerrar la alacena");
-        P("MesaCocina", 20f, y, 4.5f, 1.6f, 0.8f, 1.6f, sWood);
+        var mesaCocina = DiningTable(20f, y, 4.5f, Vector3.forward, 1.6f, 1.0f, 0.76f);
+        mesaCocina.name = "MesaCocina";
+        Chair(18.7f, y, 4.5f, Vector3.right);
+        Chair(21.3f, y, 4.5f, Vector3.left);
+        Chair(19.5f, y, 5.55f, Vector3.back);
+        Chair(20.5f, y, 3.45f, Vector3.forward);
+        Plant(23.3f, y, 0.7f, 1.1f);
         Sconce(false, 24f, 4f, 1.8f, -1);
 
         // ---- Cuarto 1
@@ -699,7 +726,8 @@ public static partial class MansionBuilder
         Choose(cama1, "Cama", "Está tibia, como si alguien acabara de levantarse.",
             O("Acostarte a dormir", () => gm.Die("bed", cama1)),
             O("Mejor no", () => gm.Say("No es buen momento para dormir.")));
-        var closet = P("Closet", 7.35f, y, 12.5f, 1.0f, 2.4f, 2.2f, sDark);
+        var closet = Wardrobe(7.35f, y, 12.5f, Vector3.left, 2.2f, 1.0f, 2.4f, false);
+        closet.name = "Closet";
         Choose(closet, "Closet", "Algo respira del otro lado de la puerta.",
             O("Abrir el closet", () => gm.Die("closet", closet)),
             O("Dejarlo cerrado", () => gm.Say("Prefieres no averiguar qué hay dentro.")));
@@ -707,12 +735,24 @@ public static partial class MansionBuilder
         ContainerInteract(mesita, "Mesita de noche", mesita.GetComponent<Openable>(), "Pilas", "Abrir el cajón",
             "En el cajón hay unas pilas, un rosario y recibos viejos.", "Tomar las pilas", "Encontraste unas pilas.", "La mesita ya no tiene nada.", "Cerrar el cajón");
 
+        Dresser(6.0f, y, 15.6f, Vector3.back, 1.6f, 0.5f, 0.9f, true).name = "Tocador";
+        Armchair(1.3f, y, 9.7f, Vector3.right);
+        Plant(7.3f, y, 15.3f, 0.9f);
+
         // ---- Baño
-        var banera = P("Banera", 10.9f, y, 14.4f, 1.4f, 0.7f, 2.6f, C(White, 0.8f));
-        Choose(banera, "Bañera con cortina", "La cortina se mueve sola. Gotea agua.",
+        var banera = Bathtub(11.35f, y, 14.45f, Vector3.left, 2.6f, 0.9f, 0.6f);        // hueca, con fondo y rebosadero
+        var cortina = ShowerCurtain(11.35f, y, 14.45f, Vector3.left, 2.6f, 0.9f, 0.6f);   // cortina corrediza en un riel
+        Choose(cortina, "Cortina de baño", "La cortina se mueve sola. Gotea agua.",
             O("Correr la cortina", () => gm.Die("tub", banera)),
             O("No tocarla", () => gm.Say("Mejor dejar la cortina como está.")));
-        Act(P("Lavabo", 8.7f, y, 13.0f, 0.6f, 0.9f, 1.0f, C(White, 0.8f)), "Lavabo", "Mirar dentro",
+        Toilet(9.4f, y, 15.5f, Vector3.back);
+        var lavabo = PedestalSink(8.7f, y, 13.2f, Vector3.right);
+        lavabo.name = "Lavabo";
+        MirrorCabinet(8.3f, 1.55f, 13.2f, Vector3.right, 0.6f, 0.7f);
+        TowelRack(9.9f, 1.3f, 15.8f, Vector3.back, 0.6f);
+        BathMat(10.0f, y, 13.5f, 0.8f, 0.5f);
+        KeyInSink(lavabo, 8.78f, 0.82f, 13.2f);   // la llave verde se ve en el lavabo
+        Act(lavabo, "Lavabo", "Mirar dentro",
             () => Take("Llave verde", "Dentro del lavabo hay una llave verde.", "Solo queda agua oscura."));
 
         // ---- Biblioteca (cerrada con llave verde)
@@ -720,8 +760,8 @@ public static partial class MansionBuilder
         KeyDoor(bib, "Llave verde", "Puerta de la biblioteca", "Está cerrada. La cerradura es verde.", "La llave verde encaja. La puerta se abre con un chirrido.");
         Window(true, 16f, 20f, y, -1);
         Rug(20.5f, y, 12.5f, 3.4f, 2.6f);
-        P("Estante", 23.55f, y, 12.0f, 0.5f, 2.6f, 6.0f, sBooks);
-        P("EstanteNorte", 18.0f, y, 15.55f, 3.2f, 2.6f, 0.5f, sBooks);
+        Bookcase(23.6f, y, 12.0f, Vector3.left, 6.0f, 0.5f, 2.6f);
+        Bookcase(18.0f, y, 15.6f, Vector3.back, 3.2f, 0.5f, 2.6f);
         var libroRojo = Box("LibroRojo", new Vector3(23.15f, 1.5f, 10.8f), new Vector3(0.25f, 0.45f, 0.2f), C(new Color(0.85f, 0.08f, 0.08f), 0.4f));
         Choose(libroRojo,
             "Libro rojo", "Una nota pegada dice: «No tocar. J.»",
@@ -731,7 +771,14 @@ public static partial class MansionBuilder
             "Libro azul", "Abrir el libro", () => Take("Llave azul", "Entre las páginas del libro azul hay una llave azul.", "Ya tomaste la llave azul."));
         Look(Box("LibroVerde", new Vector3(23.15f, 1.5f, 13.2f), new Vector3(0.25f, 0.45f, 0.2f), C(new Color(0.1f, 0.55f, 0.2f), 0.4f)),
             "Libro verde", "Un libro de recetas muy raras. Nada útil.");
-        Look(P("EscritorioBib", 21.5f, y, 9.0f, 2.0f, 0.8f, 1.0f, sWood), "Escritorio", "Una nota: «Las llaves están escondidas en lugares que parecen inofensivos. — J.»");
+        var escBib = Desk(21.5f, y, 8.8f, Vector3.forward, 2.0f, 1.0f, 0.78f);
+        escBib.name = "EscritorioBib";
+        Look(escBib, "Escritorio", "Una nota: «Las llaves están escondidas en lugares que parecen inofensivos. — J.»");
+        OfficeChair(21.5f, y, 9.9f, Vector3.back);
+        BankerLamp(22.1f, 0.78f, 8.8f, Vector3.forward);
+        Globe(18.4f, y, 8.8f);
+        Armchair(21.8f, y, 14.6f, Vector3.back);
+        Plant(23.3f, y, 8.7f, 1f);
     }
 
     static void SecondFloor()
@@ -773,6 +820,10 @@ public static partial class MansionBuilder
         Window(true, 16f, 12f, y, -1);
         Painting(false, 8f, 6.0f, y + 1.9f, 1, 0.9f, 1.2f, 1);
         Sconce(false, 8f, 12.5f, y + 1.8f, 1);
+        ConsoleTable(11.0f, y, 15.65f, Vector3.back, 1.4f, 0.4f, 0.8f);
+        Vase(10.6f, y + 0.8f, 15.65f);
+        Plant(9.0f, y, 15.3f, 1.2f);
+        Barometer(8.3f, y + 1.7f, 9.0f, Vector3.right);
 
         // ---- Cuarto 3
         Window(true, 0f, 4f, y, 1);
@@ -781,14 +832,19 @@ public static partial class MansionBuilder
         var comoda = DresserWithContents("Comoda", 4.0f, y, 7.45f, Vector3.back, 2.0f, 0.8f, 1.0f);
         ContainerInteract(comoda, "Cómoda", comoda.GetComponent<Openable>(), "Partituras", "Abrir los cajones",
             "Dentro hay ropa vieja y unas partituras de piano.", "Tomar las partituras", "Entre la ropa vieja hay unas partituras de piano.", "Solo queda ropa vieja.", "Cerrar los cajones");
-        var tele = P("Tele", 7.3f, y, 5.2f, 0.5f, 1.1f, 1.6f, C(new Color(0.04f, 0.04f, 0.04f), 0.6f));
+        var tele = TV(7.6f, y, 5.2f, Vector3.left, 1.6f, 0.5f, 1.1f);
+        tele.name = "Tele";
+        Armchair(5.5f, y, 5.8f, Vector3.right);
         Choose(tele, "Televisión", "La pantalla muestra estática sin estar conectada.",
             O("Encender la tele", () => gm.Die("tv", tele)),
             O("Dejarla apagada", () => gm.Say("Mejor la dejo así.")));
 
         // ---- Piano (oscuro: hace falta linterna encendida)
         Window(true, 16f, 4f, y, -1);
-        var piano = P("Piano", 2.0f, y, 13.2f, 2.2f, 1.2f, 1.2f, C(new Color(0.04f, 0.04f, 0.05f), 0.8f));
+        var piano = GrandPiano(2.6f, y, 15.1f, Vector3.forward * -1f, 2.2f, 1.2f, 1.2f);
+        piano.name = "Piano";
+        PianoBench(2.6f, y, 13.6f, Vector3.forward);
+        Candelabra(0.9f, y, 13.0f, 1.3f);
         Act(piano, "Piano", "Tocar el piano", () =>
         {
             if (!gm.FlashOn) { gm.Say("Está demasiado oscuro para ver bien. Necesitas la linterna con pilas encendida (F)."); return; }
@@ -798,14 +854,19 @@ public static partial class MansionBuilder
             gm.audio.Sfx("piano", 0.8f);
             gm.Say("Tocas la melodía de las partituras. Un compartimento secreto se abre: ¡una llave amarilla!");
         });
-        P("MesaMuneca", 6.8f, y, 15.3f, 0.8f, 0.7f, 0.8f, sWood);
-        var muneca = P("Muneca", 6.8f, y + 0.7f, 15.3f, 0.3f, 0.5f, 0.3f, C(new Color(0.85f, 0.75f, 0.65f), 0.3f));
+        ChildTable(6.8f, y, 15.1f);
+        var muneca = DollSeated(6.8f, y + 0.55f, 15.1f, Vector3.back);
+        muneca.name = "Muneca";
+        FloorLamp(7.3f, y, 9.0f);
         Choose(muneca, "Muñeca", "Sus ojos de vidrio brillan con tu luz.",
             O("Tomar la muñeca", () => { if (!gm.FlashOn) gm.Say("No ves casi nada aquí. Enciende la linterna."); else gm.Die("doll", muneca); }),
             O("Dejarla", () => gm.Say("Mejor la dejo donde está.")));
 
         // ---- Cuarto 4
-        var armario = P("Armario", 23.3f, y, 5.0f, 1.0f, 2.4f, 2.0f, sDark);
+        var armario = Wardrobe(23.3f, y, 5.0f, Vector3.left, 2.0f, 1.0f, 2.4f, true);
+        armario.name = "Armario";
+        Dresser(20.0f, y, 0.55f, Vector3.forward, 1.6f, 0.5f, 0.9f, false).name = "Tocador";
+        Trunk(18.2f, y, 0.7f, Vector3.forward, 1.0f);
         Choose(armario, "Armario", "Se oyen rasguños desde adentro.",
             O("Abrir el armario", () => gm.Die("wardrobe", armario)),
             O("Alejarte", () => gm.Say("Retrocedes despacio.")));
@@ -818,8 +879,17 @@ public static partial class MansionBuilder
         Window(true, 16f, 20f, y, -1);
         Rug(20.0f, y, 12.5f, 3.4f, 2.6f);
         Painting(false, 24f, 11.0f, y + 1.9f, -1, 1.0f, 1.2f, 2);
-        Look(P("EscritorioOfi", 21.5f, y, 9.0f, 2.0f, 0.8f, 1.0f, sWood), "Escritorio", "Una hoja: «La caja fuerte usa el año en que compré la casa.»");
-        var safe = P("CajaFuerte", 23.3f, y, 13.0f, 0.9f, 1.0f, 0.9f, C(new Color(0.28f, 0.28f, 0.32f), 0.7f));
+        var escOfi = Desk(21.5f, y, 8.8f, Vector3.forward, 2.0f, 1.0f, 0.78f);
+        escOfi.name = "EscritorioOfi";
+        Look(escOfi, "Escritorio", "Una hoja: «La caja fuerte usa el año en que compré la casa.»");
+        OfficeChair(21.5f, y, 9.9f, Vector3.back);
+        BankerLamp(22.1f, y + 0.78f, 8.8f, Vector3.forward);
+        FileCabinet(23.4f, y, 10.6f, Vector3.left);
+        Bookcase(19.8f, y, 15.6f, Vector3.back, 3.0f, 0.5f, 2.4f);
+        Globe(17.7f, y, 15.0f);
+        WallClock(20.0f, y + 2.2f, 8.2f, Vector3.forward);
+        var safe = Safe(23.3f, y, 13.0f, Vector3.left, 0.9f, 0.9f, 1.0f);
+        safe.name = "CajaFuerte";
         Interactable.Add(safe, "Caja fuerte", () =>
         {
             if (gm.Has("Llave dorada")) return One("Mirar", () => gm.Say("La caja fuerte está vacía."));

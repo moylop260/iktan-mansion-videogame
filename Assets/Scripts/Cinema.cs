@@ -404,7 +404,10 @@ public class Cinema : MonoBehaviour
         Vector3 center = new Vector3(b.center.x, b.max.y, b.center.z);
         gm.audio.Sfx("drip", 0.9f); gm.audio.SetHeart(0.7f);
         yield return LookAt(center + Vector3.up * 0.6f, 0.6f);
-        gm.audio.Sfx("drip", 0.8f); yield return Wait(0.5f);
+        // la cortina corrediza se abre sola, deslizándose por el riel
+        var curtain = UnityEngine.Object.FindFirstObjectByType<SlidingCurtain>();
+        if (curtain != null) { gm.audio.Sfx("creak", 0.8f, 1.6f); curtain.Slide(1f); }
+        gm.audio.Sfx("drip", 0.8f); yield return Wait(0.9f);
         gm.audio.Sfx("drip", 0.9f); gm.audio.Sfx("whisper", 0.6f); yield return Wait(0.5f);
 
         var fig = Track(Mon.Figure(new Vector3(b.center.x, floorY - 1.4f, b.center.z), fwd, new Color(0.62f, 0.7f, 0.72f), new Color(0.9f, 0.95f, 1f), 1.05f));

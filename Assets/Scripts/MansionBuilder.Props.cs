@@ -261,3 +261,24 @@ public static partial class MansionBuilder
         return g;
     }
 }
+
+public static partial class MansionBuilder
+{
+    /// <summary>Una llave pequeña tirada en el lavabo, del color de su llave; desaparece al tomarla.</summary>
+    static void KeyInSink(GameObject sink, float x, float y, float z)
+    {
+        var root = new GameObject("LlaveEnLavabo");
+        root.transform.SetParent(sink.transform, false);
+        root.AddComponent<HideWhenOwned>().item = "Llave verde";
+        var col = new Color(0.2f, 0.85f, 0.3f);
+        var m = Mon.Glow(col, 1.6f);
+        var ring = Mon.Part(root.transform, PrimitiveType.Cylinder, new Vector3(x, y + 0.012f, z), new Vector3(0.04f, 0.004f, 0.04f), m);
+        var hole = Mon.Part(root.transform, PrimitiveType.Cylinder, new Vector3(x, y + 0.016f, z), new Vector3(0.016f, 0.003f, 0.016f), Mon.Lit(new Color(0.03f, 0.03f, 0.03f), 0.5f));
+        Mon.Part(root.transform, PrimitiveType.Cube, new Vector3(x + 0.07f, y + 0.012f, z), new Vector3(0.1f, 0.01f, 0.014f), m);
+        Mon.Part(root.transform, PrimitiveType.Cube, new Vector3(x + 0.11f, y + 0.012f, z + 0.014f), new Vector3(0.012f, 0.01f, 0.026f), m);
+        Mon.Part(root.transform, PrimitiveType.Cube, new Vector3(x + 0.085f, y + 0.012f, z + 0.014f), new Vector3(0.012f, 0.01f, 0.02f), m);
+        // brillo para que se vea desde lejos
+        var l = new GameObject("BrilloLlave"); l.transform.SetParent(root.transform, false); l.transform.position = new Vector3(x + 0.06f, y + 0.12f, z);
+        var li = l.AddComponent<Light>(); li.type = LightType.Point; li.color = col; li.intensity = 0.5f; li.range = 0.9f;
+    }
+}
