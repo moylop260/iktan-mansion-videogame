@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
     string currentCp = "";
     string msg = ""; float msgUntil;
     string chTitle = "", chBody = ""; List<Opt> chOpts = new List<Opt>(); bool chCancel;
-    string endText = "", deathText = ""; float deathTime;
+    string endText = "", deathText = ""; float deathTime, deathStart;
     Interactable hover;
     public AudioManager audio;
     public Camera cam;
@@ -203,7 +203,8 @@ public class GameManager : MonoBehaviour
     public void Die(string kind, GameObject focus)
     {
         if (mode == Mode.Death || mode == Mode.GameOver) return;
-        mode = Mode.Death; deaths++;
+        mode = Mode.Death; deaths++; deathStart = Time.time;
+        if (last != null) { last.deaths = deaths; Persist(); }
         if (flash != null) flash.enabled = false;
         cinema.Play(kind, focus);
     }
@@ -412,6 +413,7 @@ public class GameManager : MonoBehaviour
         {
             case Mode.Title: amb = 0.25f; break;
             case Mode.Paused: amb = 0.08f; break;
+            case Mode.Death: amb = 0f; break;
             case Mode.GameOver: amb = 0.05f; break;
             case Mode.Win:
             case Mode.Ended: amb = 0.1f; break;
@@ -446,6 +448,10 @@ public class GameManager : MonoBehaviour
                     if (Inp.Retry() || Inp.Confirm()) Retry();
                     else if (Inp.NewKey()) NewGame();
                 }
+                break;
+            case Mode.Death:
+                // red de seguridad: si una escena se atora, no dejes el juego bloqueado
+                if (Time.time - deathStart > 20f) { cinema.Cleanup(); EndDeath(); }
                 break;
             case Mode.Win:
             case Mode.Ended:
@@ -522,6 +528,7 @@ public class GameManager : MonoBehaviour
     }
 
     GUIStyle sSerif;
+    Vector2 lastMouse;
     static readonly Color Gold = new Color(0.85f, 0.68f, 0.28f);
 
     GUIStyle Serif(int size, TextAnchor a = TextAnchor.MiddleCenter, Color? c = null)
@@ -709,13 +716,14 @@ public class GameManager : MonoBehaviour
         {
             var r = new Rect(box.x + 24f, y, box.width - 48f, 40f);
             var e = Event.current;
-            if (e.type == EventType.MouseMove && r.Contains(e.mousePosition)) chSel = i;
+            if (e.type == EventType.Repaint && e.mousePosition != lastMouse && r.Contains(e.mousePosition)) chSel = i;
             if (e.type == EventType.MouseDown && r.Contains(e.mousePosition)) { Pick(i); e.Use(); return; }
             bool sel = i == chSel;
             if (sel) Rect2(r, new Color(0.85f, 0.68f, 0.28f, 0.22f));
             GUI.Label(r, (sel ? ">  " : "    ") + (i + 1) + ".  " + chOpts[i].label, Serif(26, TextAnchor.MiddleLeft, sel ? new Color(1f, 0.9f, 0.55f) : new Color(0.85f, 0.85f, 0.85f)));
             y += 46f;
         }
+        if (Event.current.type == EventType.Repaint) lastMouse = Event.current.mousePosition;
         if (chCancel) GUI.Label(new Rect(box.xMax - 260f, box.yMax - 28f, 250f, 24f), "Esc: alejarse", Serif(15, TextAnchor.MiddleRight, new Color(0.6f, 0.6f, 0.6f)));
     }
 
