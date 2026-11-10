@@ -88,4 +88,47 @@ public class CheckpointTests
         float waited = 0f;
         while (gm.mode == Mode.Death && waited < 30f) { waited += Time.unscaledDeltaTime; yield return null; }
     }
+
+    // Requested by the designer's father: every key found and every door opened saves a checkpoint.
+    [UnityTest]
+    public IEnumerator Finding_a_key_saves_an_automatic_checkpoint_but_other_items_do_not()
+    {
+        yield return null;
+        gm.Give("Linterna");
+        Assert.AreEqual("Entrada", gm.CurrentCheckpoint, "a flashlight is not a key");
+        gm.Give("Llave verde");
+        Assert.AreEqual("Llave verde", gm.CurrentCheckpoint);
+        var save = JsonUtility.FromJson<SaveData>(PlayerPrefs.GetString(TestWorld.SaveKey));
+        Assert.AreEqual("Llave verde", save.checkpoint);
+        CollectionAssert.Contains(save.items, "Llave verde");
+    }
+
+    [UnityTest]
+    public IEnumerator Opening_a_door_saves_an_automatic_checkpoint_with_the_door_open()
+    {
+        gm.Give("Llave verde");
+        TestWorld.Use(gm.doorMap["biblioteca"].leaf);
+        Assert.AreEqual("Puerta de la biblioteca", gm.CurrentCheckpoint);
+        var save = JsonUtility.FromJson<SaveData>(PlayerPrefs.GetString(TestWorld.SaveKey));
+        CollectionAssert.Contains(save.doors, "biblioteca");
+        // dying afterwards returns to the open door, not to the entrance
+        Time.timeScale = 10f;
+        gm.Die("alarm", null);
+        float waited = 0f;
+        while (gm.mode == Mode.Death && waited < 30f) { waited += Time.unscaledDeltaTime; yield return null; }
+        Time.timeScale = 1f;
+        gm.Retry();
+        Assert.IsTrue(gm.doorMap["biblioteca"].IsOpen);
+        Assert.IsTrue(gm.Has("Llave verde"));
+    }
+
+    [UnityTest]
+    public IEnumerator Restoring_a_save_does_not_trigger_new_automatic_checkpoints()
+    {
+        gm.Give("Llave azul");
+        gm.doorMap["reja"].Open(true);
+        gm.Continue();
+        Assert.AreEqual("Llave azul", gm.CurrentCheckpoint);
+        yield return null;
+    }
 }
