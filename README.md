@@ -29,6 +29,15 @@ Command line:
 Preview a death scene directly: launch the app with `-testdeath closet`
 (also `wardrobe`, `fridge`, `mirror`, `bed`, `tub`, `pit`, `tv`, `doll`, `alarm`, `closetnear`).
 
+## Tests and coverage
+Unity Test Framework: 50 EditMode tests (audio synthesis, textures, data) and 55 PlayMode tests (house structure,
+winning route, every death scene, checkpoints, stairs, containers, mirror). Line coverage of the game code is 86.6 %.
+
+```sh
+./tools/run-tests.sh      # runs both suites with Code Coverage; report in CodeCoverage/Report/index.html
+```
+Close any other Unity process first.
+
 ## Versioning
 The version lives in `ProjectSettings/ProjectSettings.asset` (`bundleVersion`) and in this README,
 and is bumped with [bump2version](https://github.com/c4urself/bump2version), which also commits and tags:
