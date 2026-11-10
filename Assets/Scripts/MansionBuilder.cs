@@ -742,9 +742,15 @@ public static partial class MansionBuilder
 
         Room("Cuarto 3", 0f, 8f, 0f, 8f, y, sWood, true, 1.3f);
         Room("Salón del piano", 0f, 8f, 8f, 16f, y, sDark, false);
-        Room("Cuarto 4", 16f, 24f, 0f, 8f, y, sWood, true, 1.3f);
-        Room("Oficina", 16f, 24f, 8f, 16f, y, sDark, true, 1.4f);
-        Room("Pasillo del segundo piso", 8f, 16f, 0f, 16f, y, sWood, false);
+        Room("Cuarto 4", 16f, 24f, 0f, 8f, y, floorTerracotta, true, 1.5f, true, new Color(1f, 0.6f, 0.3f));
+        Room("Oficina", 16f, 24f, 8f, 16f, y, sDark, true, 1.5f, true, new Color(0.7f, 1f, 0.8f));
+        // El piso del pasillo rodea el hueco de la escalera (x 12.4..15.85, z 3.9..10.0): si lo cubriera, la escalera se
+        // vería techada desde abajo y se atravesaría al subir.
+        gm.zones.Add(new Zone { name = "Pasillo del segundo piso", x0 = 8f, x1 = 16f, z0 = 0f, z1 = 16f, y0 = y });
+        Room("Pasillo del segundo piso", 8f, 12.4f, 0f, 16f, y, sWood, false, 1f, false);
+        Room("Pasillo del segundo piso", 12.4f, 15.85f, 0f, 3.9f, y, sWood, false, 1f, false);
+        Room("Pasillo del segundo piso", 12.4f, 15.85f, 10.0f, 16f, y, sWood, false, 1f, false);
+        Room("Pasillo del segundo piso", 15.85f, 16f, 0f, 16f, y, sWood, false, 1f, false);
         Chandelier(12f, y + H, 2.5f);
         AddLight(new Vector3(12f, y + 2.7f, 13f), Warm, 1.6f, 10f);
         Box("Alfombra", new Vector3(12f, y + 0.03f, 13f), new Vector3(2.2f, 0.02f, 5.5f), sCarpet, false);
