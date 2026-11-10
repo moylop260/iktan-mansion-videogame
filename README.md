@@ -35,11 +35,20 @@ piano room (flashlight on) → yellow key → office → safe (the year the hous
 living-room diary) → golden key → front door.
 
 ## Open and build
-1. Unity Hub → *Add project from disk* → this folder, with Unity 6.
-2. Menu **Mansion → Compilar para macOS** builds `Builds/Mansion.app`, or press Play in the editor.
+Both ways produce `Builds/Mansion.app`. Close any other Unity process first, otherwise the project is locked and the build fails.
 
-Command line:
-`"/Applications/Unity/Hub/Editor/<version>/Unity.app/Contents/MacOS/Unity" -batchmode -quit -projectPath . -executeMethod MansionEditor.BuildMac -logFile build.log`
+**From the terminal**
+```sh
+cd ~/videojuego_iktan/mansion
+/Applications/Unity/Hub/Editor/6000.6.8f1/Unity.app/Contents/MacOS/Unity -batchmode -quit -projectPath . -executeMethod MansionEditor.BuildMac -logFile build.log
+grep "Compilación" build.log     # "Compilación OK" means it worked
+open Builds/Mansion.app
+```
+It takes a few minutes. Adjust the Unity version in the path to the one installed (`ls /Applications/Unity/Hub/Editor`).
+
+**From Unity**
+1. Unity Hub → *Add project from disk* → this folder, with Unity 6.
+2. Menu **Mansion → Compilar para macOS**, or just press **Play** in the editor to play without building.
 
 Preview a death scene directly: launch the app with `-testdeath closet`
 (also `wardrobe`, `fridge`, `mirror`, `bed`, `tub`, `pit`, `tv`, `doll`, `alarm`, `closetnear`).
