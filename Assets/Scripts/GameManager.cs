@@ -339,6 +339,7 @@ public class GameManager : MonoBehaviour
         switch (kind)
         {
             case "closet": obj = "Closet"; pos = new Vector3(4.6f, 0.05f, 12.5f); yaw = 90f; break;
+            case "closetnear": obj = "Closet"; pos = new Vector3(6.3f, 0.05f, 12.5f); yaw = 90f; kind = "closet"; break;
             case "wardrobe": obj = "Armario"; pos = new Vector3(20.4f, F2 + 0.05f, 5f); yaw = 90f; break;
             case "fridge": obj = "Refri"; pos = new Vector3(20.4f, 0.05f, 6.8f); yaw = 90f; break;
             case "mirror": obj = "Espejo"; pos = new Vector3(3.2f, 0.05f, 5.5f); yaw = 270f; break;
