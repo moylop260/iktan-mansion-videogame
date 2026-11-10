@@ -196,10 +196,13 @@ public class GameManager : MonoBehaviour
 
     public void Say(string t) { msg = t; msgUntil = Time.time + Mathf.Max(3.5f, t.Length * 0.06f); }
 
-    public void Die(string t)
+    /// <summary>Muerte animada: kind elige la escena (closet, wardrobe, fridge, mirror, bed, tub, pit, tv, doll, alarm).</summary>
+    public void Die(string kind, GameObject focus)
     {
-        mode = Mode.GameOver; deathText = t; deathTime = Time.unscaledTime; deaths++;
+        if (mode == Mode.Death || mode == Mode.GameOver) return;
+        mode = Mode.Death; deaths++;
         if (flash != null) flash.enabled = false;
+        cinema.Play(kind, focus);
     }
 
     public void Win(string t)
@@ -699,9 +702,8 @@ public class GameManager : MonoBehaviour
     void DrawGameOver(float W, float H)
     {
         Rect2(new Rect(0, 0, W, H), new Color(0.25f, 0f, 0f, 0.9f));
-        GUI.Label(new Rect(0, 120f, W, 90f), "GAME OVER", new GUIStyle(sTitle) { fontSize = 72 });
-        GUI.Label(new Rect(W / 2f - 380f, 230f, 760f, 140f), deathText, new GUIStyle(sLabel) { fontSize = 24 });
-        GUI.Label(new Rect(0, 380f, W, 30f), "Último checkpoint: " + (currentCp == "" ? "inicio" : currentCp) + "   ·   Muertes: " + deaths, sLabel);
+        GUI.Label(new Rect(0, 150f, W, 100f), "GAME OVER", Serif(84, TextAnchor.MiddleCenter, new Color(0.8f, 0.05f, 0.05f)));
+        GUI.Label(new Rect(0, 330f, W, 30f), "Último checkpoint: " + (currentCp == "" ? "inicio" : currentCp) + "   ·   Muertes: " + deaths, sLabel);
         if (GUI.Button(new Rect(W / 2f - 270f, 450f, 540f, 54f), "Reintentar desde el checkpoint (R)", sBtn)) Retry();
         else if (GUI.Button(new Rect(W / 2f - 270f, 516f, 540f, 54f), "Empezar de cero (N)", sBtn)) NewGame();
     }

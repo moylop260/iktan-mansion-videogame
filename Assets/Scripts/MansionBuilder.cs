@@ -508,14 +508,14 @@ public static class MansionBuilder
         var mirror = Box("Espejo", new Vector3(0.25f, 1.6f, 5.5f), new Vector3(0.1f, 1.8f, 1.2f), C(new Color(0.7f, 0.8f, 0.9f), 0.95f));
         Box("MarcoEspejo", new Vector3(0.2f, 1.6f, 5.5f), new Vector3(0.06f, 2.0f, 1.4f), C(Gold, 0.6f), false);
         Choose(mirror, "Espejo", "Tu reflejo te mira... un segundo tarde.",
-            O("Mirarte en el espejo", () => gm.Die("Detrás de tu reflejo algo se mueve. Una mano sale del espejo y te jala hacia adentro.")),
+            O("Mirarte en el espejo", () => gm.Die("mirror", mirror)),
             O("Apartar la mirada", () => gm.Say("Mejor no mirar el espejo.")));
 
         // ---- Cocina
         Window(true, 0f, 20f, y, 1, false);
         var fridge = P("Refri", 23.2f, y, 6.8f, 1.2f, 2.1f, 1.0f, C(White, 0.5f));
         Choose(fridge, "Refrigerador", "Zumba muy fuerte y gotea algo oscuro.",
-            O("Abrir el refri", () => gm.Die("Abres el refri y una araña gigante se te lanza a la cara. ¡Final inesperado!")),
+            O("Abrir el refri", () => gm.Die("fridge", fridge)),
             O("Dejarlo cerrado", () => gm.Say("Mejor no abrir el refri...")));
         Act(P("Mostrador", 20f, y, 0.7f, 5f, 1.0f, 0.9f, C(new Color(0.55f, 0.55f, 0.58f), 0.5f)), "Cajón del mostrador", "Abrir el cajón",
             () => Take("Linterna", "Encontraste una linterna.", "El cajón está vacío."));
@@ -526,18 +526,21 @@ public static class MansionBuilder
         // ---- Cuarto 1
         Window(true, 16f, 4f, y, -1);
         Rug(4.0f, y, 12.0f, 3.0f, 2.4f);
-        Choose(P("Cama1", 2.0f, y, 14.4f, 2.0f, 0.7f, 3.0f, C(new Color(0.3f, 0.26f, 0.45f), 0.05f)), "Cama", "Está tibia, como si alguien acabara de levantarse.",
-            O("Acostarte a dormir", () => gm.Die("Te duermes y tienes una pesadilla: corres hacia una puerta que se aleja... y ya no despiertas.")),
+        var cama1 = P("Cama1", 2.0f, y, 14.4f, 2.0f, 0.7f, 3.0f, C(new Color(0.3f, 0.26f, 0.45f), 0.05f));
+        Choose(cama1, "Cama", "Está tibia, como si alguien acabara de levantarse.",
+            O("Acostarte a dormir", () => gm.Die("bed", cama1)),
             O("Mejor no", () => gm.Say("No es buen momento para dormir.")));
-        Choose(P("Closet", 7.35f, y, 12.5f, 1.0f, 2.4f, 2.2f, sDark), "Closet", "Algo respira del otro lado de la puerta.",
-            O("Abrir el closet", () => gm.Die("Del closet salen unos ojos enormes y unas manos largas te jalan hacia adentro.")),
+        var closet = P("Closet", 7.35f, y, 12.5f, 1.0f, 2.4f, 2.2f, sDark);
+        Choose(closet, "Closet", "Algo respira del otro lado de la puerta.",
+            O("Abrir el closet", () => gm.Die("closet", closet)),
             O("Dejarlo cerrado", () => gm.Say("Prefieres no averiguar qué hay dentro.")));
         Act(P("Mesita", 3.9f, y, 15.4f, 0.7f, 0.6f, 0.7f, sWood), "Mesita de noche", "Revisar",
             () => Take("Pilas", "Encontraste unas pilas.", "La mesita ya no tiene nada."));
 
         // ---- Baño
-        Choose(P("Banera", 10.9f, y, 14.4f, 1.4f, 0.7f, 2.6f, C(White, 0.8f)), "Bañera con cortina", "La cortina se mueve sola. Gotea agua.",
-            O("Correr la cortina", () => gm.Die("Detrás de la cortina esperaba una figura empapada. No tuviste tiempo de gritar.")),
+        var banera = P("Banera", 10.9f, y, 14.4f, 1.4f, 0.7f, 2.6f, C(White, 0.8f));
+        Choose(banera, "Bañera con cortina", "La cortina se mueve sola. Gotea agua.",
+            O("Correr la cortina", () => gm.Die("tub", banera)),
             O("No tocarla", () => gm.Say("Mejor dejar la cortina como está.")));
         Act(P("Lavabo", 8.7f, y, 13.0f, 0.6f, 0.9f, 1.0f, C(White, 0.8f)), "Lavabo", "Mirar dentro",
             () => Take("Llave verde", "Dentro del lavabo hay una llave verde.", "Solo queda agua oscura."));
@@ -549,9 +552,10 @@ public static class MansionBuilder
         Rug(20.5f, y, 12.5f, 3.4f, 2.6f);
         P("Estante", 23.55f, y, 12.0f, 0.5f, 2.6f, 6.0f, sBooks);
         P("EstanteNorte", 18.0f, y, 15.55f, 3.2f, 2.6f, 0.5f, sBooks);
-        Choose(Box("LibroRojo", new Vector3(23.15f, 1.5f, 10.8f), new Vector3(0.25f, 0.45f, 0.2f), C(new Color(0.85f, 0.08f, 0.08f), 0.4f)),
+        var libroRojo = Box("LibroRojo", new Vector3(23.15f, 1.5f, 10.8f), new Vector3(0.25f, 0.45f, 0.2f), C(new Color(0.85f, 0.08f, 0.08f), 0.4f));
+        Choose(libroRojo,
             "Libro rojo", "Una nota pegada dice: «No tocar. J.»",
-            O("Sacar el libro rojo", () => gm.Die("Era una trampa: el estante se cierra y el piso se abre bajo tus pies.")),
+            O("Sacar el libro rojo", () => gm.Die("pit", libroRojo)),
             O("Dejarlo", () => gm.Say("Mejor no lo toco.")));
         Act(Box("LibroAzul", new Vector3(23.15f, 1.5f, 12.0f), new Vector3(0.25f, 0.45f, 0.2f), C(new Color(0.15f, 0.3f, 0.95f), 0.4f)),
             "Libro azul", "Abrir el libro", () => Take("Llave azul", "Entre las páginas del libro azul hay una llave azul.", "Ya tomaste la llave azul."));
@@ -600,8 +604,9 @@ public static class MansionBuilder
         Look(P("Cama3", 2.0f, y, 1.6f, 2.0f, 0.7f, 3.0f, C(new Color(0.3f, 0.3f, 0.45f), 0.05f)), "Cama vacía", "Una cama sin hacer. Las sábanas están frías.");
         Act(P("Comoda", 4.0f, y, 7.3f, 2.0f, 1.0f, 0.8f, sWood), "Cómoda", "Abrir los cajones",
             () => Take("Partituras", "Entre la ropa vieja hay unas partituras de piano.", "Solo queda ropa vieja."));
-        Choose(P("Tele", 7.3f, y, 5.2f, 0.5f, 1.1f, 1.6f, C(new Color(0.04f, 0.04f, 0.04f), 0.6f)), "Televisión", "La pantalla muestra estática sin estar conectada.",
-            O("Encender la tele", () => gm.Die("En la pantalla aparece una silueta que sale de la tele, se arrastra hacia ti... y apaga las luces.")),
+        var tele = P("Tele", 7.3f, y, 5.2f, 0.5f, 1.1f, 1.6f, C(new Color(0.04f, 0.04f, 0.04f), 0.6f));
+        Choose(tele, "Televisión", "La pantalla muestra estática sin estar conectada.",
+            O("Encender la tele", () => gm.Die("tv", tele)),
             O("Dejarla apagada", () => gm.Say("Mejor la dejo así.")));
 
         // ---- Piano (oscuro: hace falta linterna encendida)
@@ -617,13 +622,15 @@ public static class MansionBuilder
             gm.Say("Tocas la melodía de las partituras. Un compartimento secreto se abre: ¡una llave amarilla!");
         });
         P("MesaMuneca", 6.8f, y, 15.3f, 0.8f, 0.7f, 0.8f, sWood);
-        Choose(P("Muneca", 6.8f, y + 0.7f, 15.3f, 0.3f, 0.5f, 0.3f, C(new Color(0.85f, 0.75f, 0.65f), 0.3f)), "Muñeca", "Sus ojos de vidrio brillan con tu luz.",
-            O("Tomar la muñeca", () => { if (!gm.FlashOn) gm.Say("No ves casi nada aquí. Enciende la linterna."); else gm.Die("Al tomarla, la muñeca gira la cabeza y se ríe. Todo se va a negro."); }),
+        var muneca = P("Muneca", 6.8f, y + 0.7f, 15.3f, 0.3f, 0.5f, 0.3f, C(new Color(0.85f, 0.75f, 0.65f), 0.3f));
+        Choose(muneca, "Muñeca", "Sus ojos de vidrio brillan con tu luz.",
+            O("Tomar la muñeca", () => { if (!gm.FlashOn) gm.Say("No ves casi nada aquí. Enciende la linterna."); else gm.Die("doll", muneca); }),
             O("Dejarla", () => gm.Say("Mejor la dejo donde está.")));
 
         // ---- Cuarto 4
-        Choose(P("Armario", 23.3f, y, 5.0f, 1.0f, 2.4f, 2.0f, sDark), "Armario", "Se oyen rasguños desde adentro.",
-            O("Abrir el armario", () => gm.Die("De adentro sale una entidad muy alta que te toma del cuello antes de que puedas correr.")),
+        var armario = P("Armario", 23.3f, y, 5.0f, 1.0f, 2.4f, 2.0f, sDark);
+        Choose(armario, "Armario", "Se oyen rasguños desde adentro.",
+            O("Abrir el armario", () => gm.Die("wardrobe", armario)),
             O("Alejarte", () => gm.Say("Retrocedes despacio.")));
         Look(Window(false, 24f, 2.0f, y, -1, false), "Ventana", "Afuera solo ves el bosque en la oscuridad... y algo que te observa.");
         Look(P("Cama4", 18.5f, y, 6.6f, 2.0f, 0.7f, 2.4f, C(new Color(0.3f, 0.36f, 0.3f), 0.05f)), "Cama", "Una cama con un hueco como de alguien que dormía aquí hace años.");
@@ -650,6 +657,6 @@ public static class MansionBuilder
 
     static void WrongCode()
     {
-        gm.Die("Suena una alarma. Las luces se apagan y algo corre hacia ti en la oscuridad.");
+        gm.Die("alarm", null);
     }
 }
