@@ -667,10 +667,10 @@ public static partial class MansionBuilder
         Painting(false, 0f, 2.5f, 1.9f, 1, 0.9f, 1.2f, 2);
         Rug(4.2f, y, 4.0f, 3.6f, 2.8f);
         Look(P("Sofa", 2.5f, y, 1.0f, 3.0f, 0.8f, 0.9f, new Color(0.45f, 0.1f, 0.12f)), "Sofá viejo", "Un sofá cubierto de polvo. No hay nada.");
+        OpenDiary(null, 4.7f, 0.8f, 5.0f, -90f);   // el diario que nombra el texto se ve abierto sobre la mesa
         Act(P("MesaSala", 4.5f, y, 5.0f, 2.0f, 0.8f, 1.0f, sWood), "Mesa con un diario", "Leer el diario", () =>
             gm.Say("Diario de Javier, 29 de octubre de 1993: «Compré esta casa en 1973. Nunca debí hacerlo. Hay algo en los espejos.»"));
-        var mirror = Box("Espejo", new Vector3(0.25f, 1.6f, 5.5f), new Vector3(0.1f, 1.8f, 1.2f), C(new Color(0.7f, 0.8f, 0.9f), 0.95f));
-        Box("MarcoEspejo", new Vector3(0.2f, 1.6f, 5.5f), new Vector3(0.06f, 2.0f, 1.4f), C(Gold, 0.6f), false);
+        var mirror = OrnateMirror("Espejo", 0.15f, 1.6f, 5.5f, Vector3.right, 1.2f, 1.8f, true);   // espejo real: muestra tu reflejo (retrasado un segundo)
         Choose(mirror, "Espejo", "Tu reflejo te mira... un segundo tarde.",
             O("Mirarte en el espejo", () => gm.Die("mirror", mirror)),
             O("Apartar la mirada", () => gm.Say("Mejor no mirar el espejo.")));
@@ -690,7 +690,7 @@ public static partial class MansionBuilder
         // ---- Cuarto 1
         Window(true, 16f, 4f, y, -1);
         Rug(4.0f, y, 12.0f, 3.0f, 2.4f);
-        var cama1 = P("Cama1", 2.0f, y, 14.4f, 2.0f, 0.7f, 3.0f, C(new Color(0.3f, 0.26f, 0.45f), 0.05f));
+        var cama1 = UnmadeBed("Cama1", 2.0f, y, 14.4f, Vector3.back, 2.0f, 3.0f, 0);   // deshecha y todavía tibia
         Choose(cama1, "Cama", "Está tibia, como si alguien acabara de levantarse.",
             O("Acostarte a dormir", () => gm.Die("bed", cama1)),
             O("Mejor no", () => gm.Say("No es buen momento para dormir.")));
@@ -771,9 +771,10 @@ public static partial class MansionBuilder
         // ---- Cuarto 3
         Window(true, 0f, 4f, y, 1);
         Rug(4.0f, y, 4.0f, 3.2f, 2.4f);
-        Look(P("Cama3", 2.0f, y, 1.6f, 2.0f, 0.7f, 3.0f, C(new Color(0.3f, 0.3f, 0.45f), 0.05f)), "Cama vacía", "Una cama sin hacer. Las sábanas están frías.");
-        Act(P("Comoda", 4.0f, y, 7.3f, 2.0f, 1.0f, 0.8f, sWood), "Cómoda", "Abrir los cajones",
-            () => Take("Partituras", "Entre la ropa vieja hay unas partituras de piano.", "Solo queda ropa vieja."));
+        Look(UnmadeBed("Cama3", 2.0f, y, 1.6f, Vector3.forward, 2.0f, 3.0f, 1), "Cama sin hacer", "Una cama sin hacer. Las sábanas están frías.");
+        var comoda = DresserWithContents("Comoda", 4.0f, y, 7.45f, Vector3.back, 2.0f, 0.8f, 1.0f);
+        ContainerInteract(comoda, "Cómoda", comoda.GetComponent<Openable>(), "Partituras", "Abrir los cajones",
+            "Dentro hay ropa vieja y unas partituras de piano.", "Tomar las partituras", "Entre la ropa vieja hay unas partituras de piano.", "Solo queda ropa vieja.", "Cerrar los cajones");
         var tele = P("Tele", 7.3f, y, 5.2f, 0.5f, 1.1f, 1.6f, C(new Color(0.04f, 0.04f, 0.04f), 0.6f));
         Choose(tele, "Televisión", "La pantalla muestra estática sin estar conectada.",
             O("Encender la tele", () => gm.Die("tv", tele)),
@@ -803,7 +804,7 @@ public static partial class MansionBuilder
             O("Abrir el armario", () => gm.Die("wardrobe", armario)),
             O("Alejarte", () => gm.Say("Retrocedes despacio.")));
         Look(Window(false, 24f, 2.0f, y, -1, false), "Ventana", "Afuera solo ves el bosque en la oscuridad... y algo que te observa.");
-        Look(P("Cama4", 18.5f, y, 6.6f, 2.0f, 0.7f, 2.4f, C(new Color(0.3f, 0.36f, 0.3f), 0.05f)), "Cama", "Una cama con un hueco como de alguien que dormía aquí hace años.");
+        Look(UnmadeBed("Cama4", 18.5f, y, 6.65f, Vector3.back, 2.0f, 2.4f, 2), "Cama", "Una cama con un hueco como de alguien que dormía aquí hace años.");
 
         // ---- Oficina (cerrada con llave amarilla)
         var ofi = MakeDoor("oficina", new Vector3(16f, y, 12.2f), false, 1.6f, DH, sDark, false, new Color(1f, 0.9f, 0.25f));
