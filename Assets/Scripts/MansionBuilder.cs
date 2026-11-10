@@ -677,8 +677,8 @@ public static partial class MansionBuilder
 
         // ---- Cocina
         Window(true, 0f, 20f, y, 1, false);
-        var fridge = P("Refri", 23.2f, y, 6.8f, 1.2f, 2.1f, 1.0f, C(White, 0.5f));
-        FridgeDetails(23.2f, y, 6.8f, Vector3.left, 1.0f, 1.2f);   // zumba fuerte y gotea algo oscuro
+        var fridge = SamsungFridge("Refri", 23.46f, y, 6.8f, Vector3.left, 0.91f, 0.78f, 1.78f);   // puertas francesas de acero, como un Samsung
+        FridgeDetails(23.46f, y, 6.8f, Vector3.left, 0.91f, 0.78f);   // zumba fuerte y gotea algo oscuro
         Choose(fridge, "Refrigerador", "Zumba muy fuerte y gotea algo oscuro.",
             O("Abrir el refri", () => gm.Die("fridge", fridge)),
             O("Dejarlo cerrado", () => gm.Say("Mejor no abrir el refri...")));

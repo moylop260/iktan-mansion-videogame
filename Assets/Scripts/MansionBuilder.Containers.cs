@@ -407,3 +407,70 @@ public static partial class MansionBuilder
         PartG(g, f, PrimitiveType.Cube, 0.1f, 0.35f, d / 2f + 0.01f, 0.05f, 0.5f, 0.004f, puddle);
     }
 }
+
+public static partial class MansionBuilder
+{
+    /// <summary>
+    /// Refrigerador de puertas francesas como los Samsung reales: acero inoxidable, dos puertas arriba con manijas verticales largas,
+    /// cajón congelador abajo con manija horizontal, dispensador de agua con pantallita y luz, rejilla inferior, cubiertas de bisagra,
+    /// y un dibujo con imanes en la puerta. Medidas reales: 0.91 x 0.75 x 1.78 m. El frente (facing) es plano salvo manijas (6 cm).
+    /// </summary>
+    static GameObject SamsungFridge(string name, float cx, float y0, float cz, Vector3 facing, float w, float d, float h)
+    {
+        var g = Group(name);
+        var f = new KFrame(cx, y0, cz, facing);
+        var steel = C(new Color(0.62f, 0.64f, 0.67f), 0.78f);
+        var steelDark = C(new Color(0.42f, 0.44f, 0.47f), 0.7f);
+        var black = C(new Color(0.03f, 0.03f, 0.04f), 0.5f);
+        var chrome = Mon.Lit(new Color(0.78f, 0.8f, 0.83f), 0.92f);
+        var chromeS = C(new Color(0.78f, 0.8f, 0.83f), 0.92f);
+        float zf = d / 2f;                       // plano del frente
+        float toe = 0.09f, lower = 0.55f, gap = 0.012f;
+        float upper = h - toe - lower - gap;
+        float yLowerC = toe + lower / 2f, yUpperC = toe + lower + gap + upper / 2f;
+
+        // cuerpo (con collider) y panel trasero
+        KBox(g, f, "Cuerpo", 0f, h / 2f, -0.015f, w, h, d - 0.03f, steelDark);
+        // puertas superiores y cajón inferior (acero cepillado, bordes cuadrados)
+        KBox(g, f, "PuertaIzq", -w / 4f - 0.003f, yUpperC, zf - 0.015f, w / 2f - 0.006f, upper, 0.03f, steel, false);
+        KBox(g, f, "PuertaDer", w / 4f + 0.003f, yUpperC, zf - 0.015f, w / 2f - 0.006f, upper, 0.03f, steel, false);
+        KBox(g, f, "CajonCongelador", 0f, yLowerC, zf - 0.015f, w - 0.006f, lower, 0.03f, steel, false);
+        // juntas oscuras entre puertas
+        KBox(g, f, "JuntaVertical", 0f, yUpperC, zf + 0.001f, 0.006f, upper, 0.032f, black, false);
+        KBox(g, f, "JuntaHorizontal", 0f, toe + lower + gap / 2f, zf + 0.001f, w, 0.008f, 0.032f, black, false);
+        // manijas verticales largas (tubo cromado con dos soportes), junto al centro
+        foreach (int s in new[] { -1, 1 })
+        {
+            float hx = s * 0.05f;
+            var bar = PartG(g, f, PrimitiveType.Cylinder, hx, yUpperC + 0.05f, zf + 0.055f, 0.026f, 0.34f, 0.026f, chrome);
+            KBox(g, f, "SoporteManija", hx, yUpperC + 0.34f, zf + 0.03f, 0.02f, 0.03f, 0.05f, chromeS, false);
+            KBox(g, f, "SoporteManija", hx, yUpperC - 0.24f, zf + 0.03f, 0.02f, 0.03f, 0.05f, chromeS, false);
+        }
+        // manija horizontal del cajón
+        var hbar = PartG(g, f, PrimitiveType.Cylinder, 0f, toe + lower - 0.06f, zf + 0.055f, 0.026f, 0.36f, 0.026f, chrome, 0f, 0f, 90f);
+        KBox(g, f, "SoporteManija", -0.33f, toe + lower - 0.06f, zf + 0.03f, 0.03f, 0.02f, 0.05f, chromeS, false);
+        KBox(g, f, "SoporteManija", 0.33f, toe + lower - 0.06f, zf + 0.03f, 0.03f, 0.02f, 0.05f, chromeS, false);
+        // dispensador de agua y hielo en la puerta izquierda: nicho oscuro con luz azul, charola con rejilla, palanca y pantalla
+        float dx = -w / 4f - 0.02f, dyc = 1.12f;
+        KBox(g, f, "Dispensador", dx, dyc, zf + 0.0005f, 0.22f, 0.34f, 0.012f, black, false);
+        KBox(g, f, "LuzDispensador", dx, dyc + 0.15f, zf + 0.008f, 0.16f, 0.012f, 0.006f, C(Color.white, 0.1f), false).GetComponent<Renderer>().sharedMaterial = EmitMat(new Color(0.45f, 0.7f, 1f), 1.4f);
+        KBox(g, f, "PalancaDispensador", dx, dyc, zf + 0.012f, 0.1f, 0.05f, 0.012f, steelDark, false);
+        for (int i = 0; i < 6; i++) KBox(g, f, "RejillaCharola", dx, dyc - 0.14f - i * 0.004f, zf + 0.012f, 0.18f, 0.002f, 0.012f, steelDark, false);
+        KBox(g, f, "PantallaDispensador", dx, dyc + 0.215f, zf + 0.003f, 0.13f, 0.045f, 0.008f, black, false);
+        KBox(g, f, "TextoPantalla", dx, dyc + 0.215f, zf + 0.008f, 0.07f, 0.014f, 0.004f, C(Color.white, 0.1f), false).GetComponent<Renderer>().sharedMaterial = EmitMat(new Color(0.4f, 1f, 0.7f), 1.2f);
+        // rejilla inferior con ranuras y zócalo
+        KBox(g, f, "Rejilla", 0f, toe / 2f, zf - 0.03f, w - 0.04f, toe - 0.01f, 0.03f, black, false);
+        for (int i = 0; i < 6; i++) KBox(g, f, "RanuraRejilla", 0f, 0.015f + i * 0.012f, zf - 0.012f, w - 0.1f, 0.004f, 0.006f, steelDark, false);
+        // cubiertas de las bisagras (arriba, a los lados) y costuras laterales
+        KBox(g, f, "CubiertaBisagra", -w / 2f + 0.05f, h + 0.012f, zf - 0.06f, 0.1f, 0.025f, 0.08f, steelDark, false);
+        KBox(g, f, "CubiertaBisagra", w / 2f - 0.05f, h + 0.012f, zf - 0.06f, 0.1f, 0.025f, 0.08f, steelDark, false);
+        // dibujo de un niño sujeto con imanes de colores en la puerta derecha
+        var paper = KBox(g, f, "Dibujo", w / 4f + 0.04f, 1.2f, zf + 0.004f, 0.2f, 0.27f, 0.003f, C(new Color(0.96f, 0.94f, 0.85f), 0.1f), false, 0f, 0f, 3f);
+        KBox(g, f, "DibujoCasa", w / 4f + 0.04f, 1.2f, zf + 0.006f, 0.1f, 0.07f, 0.002f, C(new Color(0.8f, 0.3f, 0.2f), 0.1f), false, 0f, 0f, 3f);
+        KBox(g, f, "DibujoSol", w / 4f + 0.07f, 1.3f, zf + 0.006f, 0.04f, 0.04f, 0.002f, C(new Color(1f, 0.85f, 0.2f), 0.1f), false, 0f, 0f, 3f);
+        Color[] mags = { new Color(0.9f, 0.2f, 0.2f), new Color(0.2f, 0.5f, 0.9f), new Color(0.95f, 0.8f, 0.2f) };
+        for (int i = 0; i < 3; i++)
+            PartG(g, f, PrimitiveType.Cylinder, w / 4f + 0.04f + (i - 1) * 0.06f, 1.33f + (i == 1 ? 0.01f : 0f), zf + 0.01f, 0.025f, 0.006f, 0.025f, Mon.Lit(mags[i], 0.5f), 90f, 0f, 0f);
+        return g;
+    }
+}

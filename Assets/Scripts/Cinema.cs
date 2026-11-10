@@ -250,7 +250,7 @@ public class Cinema : MonoBehaviour
         Cube(new Vector3(front.x, b.center.y, front.z) + fwd * 0.012f, holeSize, Mon.Glow(new Color(0.8f, 0.95f, 1f), 1.6f));
         var l = LightAt(front + fwd * 0.4f + Vector3.up * 0.3f, new Color(0.75f, 0.9f, 1f), 3.5f, 6f);
         l.gameObject.AddComponent<Flicker>().baseIntensity = 3.5f;
-        StartCoroutine(Swing(new Vector3(front.x, b.min.y + 0.02f, front.z) + side * wdt * 0.5f + fwd * 0.03f, -side, wdt, b.size.y * 0.96f, fwd, Mon.Lit(Color.white, 0.5f), 0.5f));
+        StartCoroutine(Swing(new Vector3(front.x, b.min.y + 0.02f, front.z) + side * wdt * 0.5f + fwd * 0.03f, -side, wdt, b.size.y * 0.96f, fwd, Mon.Lit(new Color(0.62f, 0.64f, 0.67f), 0.78f), 0.5f));
         yield return Wait(0.9f);
 
         // la araña
