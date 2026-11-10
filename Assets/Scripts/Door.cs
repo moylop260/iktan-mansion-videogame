@@ -19,6 +19,7 @@ public class Door : MonoBehaviour
         if (GameManager.I != null) GameManager.I.doors.Add(id);
         var it = leaf.GetComponent<Interactable>();
         if (it != null) it.enabled = false;
+        if (!instant && GameManager.I != null) GameManager.I.AutoCheckpoint(GameManager.DoorName(id));   // abrir una puerta guarda el avance
         if (GameManager.I != null && GameManager.I.audio != null && !instant) GameManager.I.audio.At("creak", transform.position, 0.9f, hide ? 1.4f : 1f);
         if (hide) { leaf.SetActive(false); return; }
         if (instant) { cur = openAngle; transform.localRotation = Quaternion.Euler(0f, cur, 0f); }

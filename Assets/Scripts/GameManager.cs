@@ -206,6 +206,7 @@ public class GameManager : MonoBehaviour
     }
 
     // accesos para las pruebas automáticas
+        if (item.StartsWith("Llave")) AutoCheckpoint(item);                 // cada llave encontrada guarda el avance
     public int ChoiceCount { get { return chOpts.Count; } }
     public void PickOption(int i) { Pick(i); }
     public int Deaths { get { return deaths; } }
@@ -278,6 +279,36 @@ public class GameManager : MonoBehaviour
 
     void LoadSave(SaveData d, bool restoreDeaths)
     {
+    static readonly Dictionary<string, string> DoorNames = new Dictionary<string, string>
+    {
+        { "principal", "Puerta principal" }, { "reja", "Reja de la escalera" },
+        { "biblioteca", "Puerta de la biblioteca" }, { "oficina", "Puerta de la oficina" },
+    };
+
+    /// <summary>Nombre legible de una puerta para el checkpoint automático.</summary>
+    public static string DoorName(string id) { string n; return DoorNames.TryGetValue(id, out n) ? n : id; }
+
+    string noteText = ""; float noteUntil;
+
+    /// <summary>
+    /// Checkpoint automático en el lugar donde está el jugador: al encontrar una llave o abrir una puerta.
+    /// Guarda objetos, puertas abiertas, posición y muertes, igual que una lámpara. Solo mientras se juega.
+    /// </summary>
+    public void AutoCheckpoint(string name)
+    {
+        if (mode != Mode.Playing || player == null) return;
+        var pos = player.transform.position;
+        last = new SaveData
+        {
+            checkpoint = name, px = pos.x, py = pos.y, pz = pos.z, yaw = player.Yaw,
+            items = items.ToList(), doors = doors.ToList(), deaths = deaths
+        };
+        currentCp = name;
+        Persist(); SetLamps();
+        SyncInside(pos);
+        noteText = "Checkpoint automático: " + name; noteUntil = Time.time + 3.5f;
+    }
+
         Time.timeScale = 1f;
         ResetFx();
         items.Clear(); foreach (var i in d.items) if (!items.Contains(i)) items.Add(i);
@@ -673,6 +704,12 @@ public class GameManager : MonoBehaviour
             Frame(r, 0.9f);
             if (i == invSel && items.Count > 0) Rect2(new Rect(r.x + 3, r.y + 3, r.width - 6, r.height - 6), new Color(0.85f, 0.68f, 0.28f, 0.25f));
             if (i < items.Count)
+        if (Time.time < noteUntil)
+        {
+            float a = Mathf.Clamp01((noteUntil - Time.time) / 0.6f);
+            Rect2(new Rect(10f, 40f, 430f, 30f), new Color(0.05f, 0.15f, 0.06f, 0.7f * a));
+            GUI.Label(new Rect(18f, 40f, 420f, 30f), noteText, new GUIStyle(sSmall) { normal = { textColor = new Color(0.45f, 1f, 0.55f, a) } });
+        }
             {
                 var ic = TexGen.Icon(items[i]);
                 if (ic != null) GUI.DrawTexture(new Rect(r.x + 10, r.y + 10, 90, 90), ic, ScaleMode.ScaleToFit, true);
