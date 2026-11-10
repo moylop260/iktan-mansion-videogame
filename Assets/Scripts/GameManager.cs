@@ -66,6 +66,7 @@ public class GameManager : MonoBehaviour
     Interactable hover;
     public AudioManager audio;
     public Camera cam;
+    Cinema cinema;
     // capas de pantalla para las escenas de muerte
     public Color fadeColor = Color.black, flashColor = Color.white;
     public float fadeAlpha, flashAlpha, staticAlpha;
@@ -116,6 +117,8 @@ public class GameManager : MonoBehaviour
         audio = gameObject.AddComponent<AudioManager>();
         audio.Init();
         BuildPostFx();
+        cinema = gameObject.AddComponent<Cinema>();
+        cinema.Setup(this, player, cam);
         RebuildWorld();
         player.Teleport(startPos, 0f);
         mode = Mode.Title;
@@ -343,6 +346,7 @@ public class GameManager : MonoBehaviour
         SetDark(false);
         audio.SetHeart(0f); audio.HeartSpeed(1f);
         if (cam != null) cam.fieldOfView = 72f;
+        if (cinema != null) cinema.Cleanup();
     }
 
     string Hint()
