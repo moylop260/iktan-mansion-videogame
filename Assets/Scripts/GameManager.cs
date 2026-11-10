@@ -166,6 +166,10 @@ public class GameManager : MonoBehaviour
 
         player = p.AddComponent<PlayerController>();
         player.camT = camT;
+        // el cuerpo del jugador solo se ve en los espejos (capas 8 y 9); la cámara principal no lo dibuja
+        c.cullingMask = ~((1 << MirrorSurface.AvatarLayer) | (1 << MirrorSurface.GhostLayer));
+        PlayerAvatar.Create(this, player, MirrorSurface.AvatarLayer, 0f);
+        PlayerAvatar.Create(this, player, MirrorSurface.GhostLayer, 1.0f);
     }
 
     void BuildPostFx()
@@ -175,10 +179,6 @@ public class GameManager : MonoBehaviour
         vol.isGlobal = true;
         var prof = ScriptableObject.CreateInstance<VolumeProfile>();
         vol.profile = prof;
-        // el cuerpo del jugador solo se ve en los espejos (capas 8 y 9); la cámara principal no lo dibuja
-        c.cullingMask = ~((1 << MirrorSurface.AvatarLayer) | (1 << MirrorSurface.GhostLayer));
-        PlayerAvatar.Create(this, player, MirrorSurface.AvatarLayer, 0f);
-        PlayerAvatar.Create(this, player, MirrorSurface.GhostLayer, 1.0f);
         vg = prof.Add<Vignette>(true); vg.intensity.Override(0.42f); vg.smoothness.Override(0.45f);
         ca = prof.Add<ChromaticAberration>(true); ca.intensity.Override(0f);
         lens = prof.Add<LensDistortion>(true); lens.intensity.Override(0f);
@@ -206,6 +206,7 @@ public class GameManager : MonoBehaviour
         items.Add(item);
         popupItem = item; popupStart = Time.time;
         if (audio != null) audio.Sfx("pickup", 0.7f);
+        if (item.StartsWith("Llave")) AutoCheckpoint(item);                 // cada llave encontrada guarda el avance
     }
     public bool FlashReady { get { return Has("Linterna") && Has("Pilas"); } }
     public bool FlashOn
@@ -215,7 +216,6 @@ public class GameManager : MonoBehaviour
     }
 
     // accesos para las pruebas automáticas
-        if (item.StartsWith("Llave")) AutoCheckpoint(item);                 // cada llave encontrada guarda el avance
     public int ChoiceCount { get { return chOpts.Count; } }
     public void PickOption(int i) { Pick(i); }
     public int Deaths { get { return deaths; } }
@@ -279,15 +279,6 @@ public class GameManager : MonoBehaviour
         Say("Checkpoint guardado: " + cp.name);
     }
 
-    void SyncInside(Vector3 pos)
-    {
-        foreach (var cp in checkpoints)
-            cp.inside = Vector2.Distance(new Vector2(pos.x, pos.z), new Vector2(cp.lampPos.x, cp.lampPos.z)) < CheckpointRadius
-                        && Mathf.Abs(pos.y - cp.lampPos.y) < 2f;
-    }
-
-    void LoadSave(SaveData d, bool restoreDeaths)
-    {
     static readonly Dictionary<string, string> DoorNames = new Dictionary<string, string>
     {
         { "principal", "Puerta principal" }, { "reja", "Reja de la escalera" },
@@ -318,6 +309,15 @@ public class GameManager : MonoBehaviour
         noteText = "Checkpoint automático: " + name; noteUntil = Time.time + 3.5f;
     }
 
+    void SyncInside(Vector3 pos)
+    {
+        foreach (var cp in checkpoints)
+            cp.inside = Vector2.Distance(new Vector2(pos.x, pos.z), new Vector2(cp.lampPos.x, cp.lampPos.z)) < CheckpointRadius
+                        && Mathf.Abs(pos.y - cp.lampPos.y) < 2f;
+    }
+
+    void LoadSave(SaveData d, bool restoreDeaths)
+    {
         Time.timeScale = 1f;
         ResetFx();
         items.Clear(); foreach (var i in d.items) if (!items.Contains(i)) items.Add(i);
@@ -704,6 +704,12 @@ public class GameManager : MonoBehaviour
         string help = "E interactuar · F linterna" + (FlashReady ? " (lista)" : "") + " · H pista · Esc pausa";
         GUI.Label(new Rect(W - 520f, H - 40f, 510f, 30f), help, new GUIStyle(sSmall) { alignment = TextAnchor.MiddleRight });
         if (currentCp != "") GUI.Label(new Rect(16f, 10f, 400f, 26f), "Checkpoint: " + currentCp, sSmall);
+        if (Time.time < noteUntil)
+        {
+            float a = Mathf.Clamp01((noteUntil - Time.time) / 0.6f);
+            Rect2(new Rect(10f, 40f, 430f, 30f), new Color(0.05f, 0.15f, 0.06f, 0.7f * a));
+            GUI.Label(new Rect(18f, 40f, 420f, 30f), noteText, new GUIStyle(sSmall) { normal = { textColor = new Color(0.45f, 1f, 0.55f, a) } });
+        }
     }
 
     void DrawInventory(float W, float H)
@@ -718,12 +724,6 @@ public class GameManager : MonoBehaviour
             Frame(r, 0.9f);
             if (i == invSel && items.Count > 0) Rect2(new Rect(r.x + 3, r.y + 3, r.width - 6, r.height - 6), new Color(0.85f, 0.68f, 0.28f, 0.25f));
             if (i < items.Count)
-        if (Time.time < noteUntil)
-        {
-            float a = Mathf.Clamp01((noteUntil - Time.time) / 0.6f);
-            Rect2(new Rect(10f, 40f, 430f, 30f), new Color(0.05f, 0.15f, 0.06f, 0.7f * a));
-            GUI.Label(new Rect(18f, 40f, 420f, 30f), noteText, new GUIStyle(sSmall) { normal = { textColor = new Color(0.45f, 1f, 0.55f, a) } });
-        }
             {
                 var ic = TexGen.Icon(items[i]);
                 if (ic != null) GUI.DrawTexture(new Rect(r.x + 10, r.y + 10, 90, 90), ic, ScaleMode.ScaleToFit, true);
