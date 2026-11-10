@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour
     public AudioManager audio;
     public Camera cam;
     Cinema cinema;
-    string testKind = ""; float testAt = -1f;
+    string testKind = ""; float testAt = -1f; Vector4 testView = new Vector4(float.NaN, 0, 0, 0);
     // capas de pantalla para las escenas de muerte
     public Color fadeColor = Color.black, flashColor = Color.white;
     public float fadeAlpha, flashAlpha, staticAlpha;
@@ -125,6 +125,15 @@ public class GameManager : MonoBehaviour
         mode = Mode.Title;
         var args = System.Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length - 1; i++) if (args[i] == "-testdeath") { testKind = args[i + 1]; testAt = Time.time + 2.5f; Application.runInBackground = true; }
+        // "-testview x,z,y0,yaw": abre la partida mirando a un punto (para revisar muebles y detalles)
+        for (int i = 0; i < args.Length - 1; i++)
+            if (args[i] == "-testview")
+            {
+                var p = args[i + 1].Split(',');
+                testView = new Vector4(float.Parse(p[0], System.Globalization.CultureInfo.InvariantCulture), float.Parse(p[1], System.Globalization.CultureInfo.InvariantCulture),
+                                       float.Parse(p[2], System.Globalization.CultureInfo.InvariantCulture), float.Parse(p[3], System.Globalization.CultureInfo.InvariantCulture));
+                testAt = Time.time + 2.5f; Application.runInBackground = true;
+            }
     }
 
     void BuildPlayer()
@@ -448,7 +457,12 @@ public class GameManager : MonoBehaviour
     // ---------------------------------------------------------------- actualización
     void Update()
     {
-        if (testAt > 0f && Time.time > testAt) { testAt = -1f; TestDeath(testKind); }
+        if (testAt > 0f && Time.time > testAt)
+        {
+            testAt = -1f;
+            if (!float.IsNaN(testView.x)) { NewGame(); mode = Mode.Playing; player.Teleport(new Vector3(testView.x, testView.z + 0.05f, testView.y), testView.w); }
+            else TestDeath(testKind);
+        }
         bool lockCursor = mode == Mode.Playing || mode == Mode.Death;
         Cursor.lockState = lockCursor ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible = !lockCursor;
