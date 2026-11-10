@@ -118,8 +118,13 @@ public class Cinema : MonoBehaviour
         float floorY = player.transform.position.y;
 
         Bounds b = new Bounds(camPos + player.transform.forward * 3f, Vector3.one);
-        var rend = focus != null ? focus.GetComponent<Renderer>() : null;
-        if (rend != null) b = rend.bounds;
+        // los muebles son grupos de piezas: el volumen es el de todas las piezas visibles juntas
+        var rends = focus != null ? focus.GetComponentsInChildren<Renderer>() : null;
+        if (rends != null && rends.Length > 0)
+        {
+            b = rends[0].bounds;
+            for (int i = 1; i < rends.Length; i++) b.Encapsulate(rends[i].bounds);
+        }
         Vector3 fwd = camPos - b.center; fwd.y = 0f;
         fwd = fwd.sqrMagnitude < 0.001f ? -player.transform.forward : fwd.normalized;
         // las puertas y el hueco son ortogonales: usa el eje dominante para que todo caiga sobre la cara del mueble
@@ -469,7 +474,7 @@ public class Cinema : MonoBehaviour
     /// <summary>Muñeca: gira la cabeza, ríe y salta a tu cara.</summary>
     IEnumerator DollScene(GameObject go, Bounds b, Vector3 fwd)
     {
-        if (go != null) { var r = go.GetComponent<Renderer>(); if (r != null) r.enabled = false; }
+        if (go != null) foreach (var r in go.GetComponentsInChildren<Renderer>()) r.enabled = false;
         gm.audio.Sfx("giggle", 0.9f); gm.audio.SetHeart(0.8f);
         var doll = Track(Mon.Doll(new Vector3(b.center.x, b.min.y, b.center.z), fwd, 1.4f));
         yield return LookAt(b.center + Vector3.up * 0.1f, 0.5f);
