@@ -431,8 +431,8 @@ public static partial class MansionBuilder
         if (lockColor.a <= 0f) return;
         // cerradura de pasador, arriba de la manija: aro de latón + cilindro del color de la llave
         Vector3 bolt = c + Vector3.up * 0.105f;
-        Disc(leaf, alongX, bolt + thick * (0.05f + s + 0.008f), 0.092f, 0.016f, brass);
-        Disc(leaf, alongX, bolt + thick * (0.05f + s + 0.02f), 0.072f, 0.024f, Mon.Glow(lockColor, 1.2f));
+        Disc(leaf, alongX, bolt + thick * (0.05f + s + 0.008f), 0.112f, 0.016f, brass);
+        Disc(leaf, alongX, bolt + thick * (0.05f + s + 0.02f), 0.09f, 0.024f, Mon.Glow(lockColor, 3.4f));   // brilla con el color de la llave
         // ojo de la cerradura: círculo + ranura hacia abajo
         Vector3 eye = bolt + thick * (0.05f + s + 0.033f);
         Disc(leaf, alongX, eye + Vector3.up * 0.006f, 0.016f, 0.006f, dark);
@@ -452,7 +452,7 @@ public static partial class MansionBuilder
         Mon.Part(leaf, PrimitiveType.Cube, post + thick * 0.045f + Vector3.up * 0.1f,
                  alongX ? new Vector3(0.22f, 0.07f, 0.02f) : new Vector3(0.02f, 0.07f, 0.22f), brass);
         // cuerpo (caja ancha con hombros) en el color de la llave
-        var body = Mon.Glow(lockColor, 1.0f);
+        var body = Mon.Glow(lockColor, 2.8f);
         Mon.Part(leaf, PrimitiveType.Cube, c, alongX ? new Vector3(0.17f, 0.13f, 0.05f) : new Vector3(0.05f, 0.13f, 0.17f), body);
         Mon.Part(leaf, PrimitiveType.Cube, c + Vector3.up * 0.075f, alongX ? new Vector3(0.14f, 0.03f, 0.045f) : new Vector3(0.045f, 0.03f, 0.14f), body);
         // arco en U: dos patas y un travesaño con esquinas a 45 grados
