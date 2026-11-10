@@ -67,6 +67,7 @@ public class GameManager : MonoBehaviour
     public AudioManager audio;
     public Camera cam;
     Cinema cinema;
+    string testKind = ""; float testAt = -1f;
     // capas de pantalla para las escenas de muerte
     public Color fadeColor = Color.black, flashColor = Color.white;
     public float fadeAlpha, flashAlpha, staticAlpha;
@@ -122,6 +123,8 @@ public class GameManager : MonoBehaviour
         RebuildWorld();
         player.Teleport(startPos, 0f);
         mode = Mode.Title;
+        var args = System.Environment.GetCommandLineArgs();
+        for (int i = 0; i < args.Length - 1; i++) if (args[i] == "-testdeath") { testKind = args[i + 1]; testAt = Time.time + 2.5f; Application.runInBackground = true; }
     }
 
     void BuildPlayer()
@@ -329,6 +332,31 @@ public class GameManager : MonoBehaviour
 #endif
     }
 
+    /// <summary>Vista previa de una escena de muerte: arranque con "-testdeath closet" (o wardrobe, fridge, mirror, bed, tub, pit, tv, doll, alarm).</summary>
+    void TestDeath(string kind)
+    {
+        string obj = null; Vector3 pos = new Vector3(12f, 0.05f, 2f); float yaw = 0f; const float F2 = 3.3f;
+        switch (kind)
+        {
+            case "closet": obj = "Closet"; pos = new Vector3(4.6f, 0.05f, 12.5f); yaw = 90f; break;
+            case "wardrobe": obj = "Armario"; pos = new Vector3(20.4f, F2 + 0.05f, 5f); yaw = 90f; break;
+            case "fridge": obj = "Refri"; pos = new Vector3(20.4f, 0.05f, 6.8f); yaw = 90f; break;
+            case "mirror": obj = "Espejo"; pos = new Vector3(3.2f, 0.05f, 5.5f); yaw = 270f; break;
+            case "bed": obj = "Cama1"; pos = new Vector3(4.8f, 0.05f, 13f); yaw = 270f; break;
+            case "tub": obj = "Banera"; pos = new Vector3(9.4f, 0.05f, 14f); yaw = 90f; break;
+            case "pit": obj = "LibroRojo"; pos = new Vector3(20.6f, 0.05f, 10.8f); yaw = 90f; break;
+            case "tv": obj = "Tele"; pos = new Vector3(4.6f, F2 + 0.05f, 5.2f); yaw = 90f; break;
+            case "doll": obj = "Muneca"; pos = new Vector3(6.8f, F2 + 0.05f, 12.4f); yaw = 0f; break;
+            case "alarm": pos = new Vector3(20f, F2 + 0.05f, 11.5f); break;
+        }
+        NewGame();
+        mode = Mode.Playing;
+        player.Teleport(pos, yaw);
+        GameObject go = null;
+        if (obj != null) { var t = worldRoot.transform.Find(obj); if (t != null) go = t.gameObject; }
+        Die(kind, go);
+    }
+
     // ---------------------------------------------------------------- efectos de pantalla
     /// <summary>Golpe visual (viñeta, aberración cromática, distorsión) que se desvanece solo.</summary>
     public void Pulse(float v) { fxPulse = Mathf.Max(fxPulse, v); }
@@ -367,6 +395,7 @@ public class GameManager : MonoBehaviour
     // ---------------------------------------------------------------- actualización
     void Update()
     {
+        if (testAt > 0f && Time.time > testAt) { testAt = -1f; TestDeath(testKind); }
         bool lockCursor = mode == Mode.Playing || mode == Mode.Death;
         Cursor.lockState = lockCursor ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible = !lockCursor;
