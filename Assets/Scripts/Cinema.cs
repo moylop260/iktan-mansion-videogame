@@ -131,7 +131,7 @@ public class Cinema : MonoBehaviour
             case "wardrobe": yield return Wardrobe(focus, b, fwd, floorY, true); break;
             case "fridge": yield return Fridge(b, fwd); break;
             case "mirror": yield return Mirror(b, fwd); break;
-            case "bed": yield return Bed(b); break;
+            case "bed": yield return Bed(b, floorY); break;
             case "tub": yield return Tub(b, fwd, floorY); break;
             case "pit": yield return Pit(b, floorY); break;
             case "tv": yield return TV(b, fwd, floorY); break;
@@ -306,37 +306,91 @@ public class Cinema : MonoBehaviour
         Flash(Color.white, 1f, 0.3f);
     }
 
-    /// <summary>Cama: pesadilla; te acuestas, el mundo se pone rojo y una cara pálida aparece encima.</summary>
-    IEnumerator Bed(Bounds b)
+    /// <summary>
+    /// Cama: te acuestas, la luz parpadea y, en cada parpadeo, una figura pálida está más cerca (al pie de la cama);
+    /// en el último se lanza sobre ti, la cara llena la pantalla y te arrastra fuera de la cama. Siempre se ve qué te ataca.
+    /// </summary>
+    IEnumerator Bed(Bounds b, float floorY)
     {
         gm.audio.SetHeart(0.9f); gm.audio.Sfx("whisper", 0.9f);
-        Vector3 c0 = camPos, c1 = new Vector3(b.center.x, b.max.y + 0.3f, b.center.z);
-        float p0 = pitch, f0 = fov;
+        // el pie de la cama: eje largo del colchón, del lado desde el que llegaste
+        Vector3 axis = b.size.x > b.size.z ? Vector3.right : Vector3.forward;
+        Vector3 footDir = Vector3.Dot(camPos - b.center, axis) >= 0f ? axis : -axis;
+        Vector3 lie = new Vector3(b.center.x, b.max.y + 0.3f, b.center.z) - footDir * 0.3f;
+        Vector3 c0 = camPos; float p0 = pitch, f0 = fov, y0 = yaw;
+        float yawFoot = Mathf.Atan2(footDir.x, footDir.z) * Mathf.Rad2Deg;
+        float dyaw = Mathf.DeltaAngle(y0, yawFoot);
         gm.fadeColor = new Color(0.25f, 0f, 0f);
         gm.audio.HeartSpeed(1f);
-        yield return Tween(1.6f, u =>
+        // te acuestas mirando al techo...
+        yield return Tween(1.2f, u =>
         {
             float e = Ease(u);
-            camPos = Vector3.Lerp(c0, c1, e); pitch = Mathf.Lerp(p0, -78f, e); fov = Mathf.Lerp(f0, 58f, e);
-            gm.fadeAlpha = 0.6f * e; roll = 6f * Mathf.Sin(u * 5f); gm.audio.HeartSpeed(1f + 0.4f * u);
+            camPos = Vector3.Lerp(c0, lie, e); pitch = Mathf.Lerp(p0, -75f, e); fov = Mathf.Lerp(f0, 60f, e);
+            gm.fadeAlpha = 0.45f * e; roll = 5f * Mathf.Sin(u * 5f); gm.audio.HeartSpeed(1f + 0.3f * u);
         });
-        gm.audio.Sfx("giggle", 0.6f, 0.8f);
-        yield return Wait(1.4f);
-        gm.audio.Sfx("creak", 0.6f, 0.7f);
-        yield return Wait(0.9f);
-
-        // la cara
-        var face = Track(Mon.Doll(camPos + Vector3.up * 0.9f + Vector3.forward * 0.15f, Vector3.down, 0.01f));
-        face.SetEyes(1f);
-        gm.audio.Sfx("stinger", 1f); gm.audio.Sfx("scream", 1f, 0.85f);
-        Flash(new Color(0.8f, 0f, 0f), 0.6f, 0.4f); gm.Pulse(1f); shake = 0.15f;
-        yield return Tween(0.18f, u =>
+        gm.audio.Sfx("giggle", 0.5f, 0.8f);
+        yield return Wait(0.8f);
+        // ...y te incorporas al oír algo: miras hacia el pie de la cama, en la oscuridad
+        gm.audio.Sfx("creak", 0.8f, 0.7f); gm.Pulse(0.5f);
+        Vector3 sit = new Vector3(lie.x, b.max.y + 0.85f, lie.z);
+        float py = pitch, rr = roll;
+        yield return Tween(0.6f, u =>
         {
-            face.transform.localScale = Vector3.one * Mathf.Lerp(0.2f, 3.4f, u);
-            face.transform.position = camPos + new Vector3(0f, Mathf.Lerp(1.3f, 0.5f, u), 0.05f);
-            face.transform.rotation = Quaternion.LookRotation(camPos - face.transform.position);
+            float e = Ease(u);
+            camPos = Vector3.Lerp(lie, sit, e); pitch = Mathf.Lerp(py, -4f, e); yaw = y0 + dyaw * e; roll = Mathf.Lerp(rr, 0f, e);
+            gm.fadeAlpha = Mathf.Lerp(0.45f, 0.15f, e); fov = Mathf.Lerp(60f, 66f, e);
         });
-        yield return Wait(0.9f);
+
+        // la figura pálida, de pie junto a la pared, ilumina su propia cara con una luz fría
+        var fig = Track(Mon.Figure(new Vector3(b.center.x, floorY, b.center.z) + footDir * 3.6f, -footDir, new Color(0.7f, 0.72f, 0.76f), new Color(1f, 0.15f, 0.1f), 1.05f));
+        var glow = LightAt(fig.transform.position + Vector3.up * 1.7f - footDir * 0.5f, new Color(0.7f, 0.8f, 1f), 3.2f, 5f);
+        fig.SetEyes(0f); glow.enabled = false;
+        float[] dists = { 3.6f, 2.5f, 1.7f };
+        for (int i = 0; i < 3; i++)
+        {
+            gm.SetDark(true); glow.enabled = false; fig.SetEyes(0f);
+            gm.audio.Sfx("creak", 0.5f, 0.6f + 0.15f * i);
+            yield return Wait(0.35f);
+            // parpadeo de luz: aparece a esa distancia
+            gm.SetDark(false);
+            glow.enabled = true; fig.SetEyes(1f);
+            fig.transform.position = new Vector3(b.center.x, floorY, b.center.z) + footDir * dists[i];
+            glow.transform.position = fig.transform.position + Vector3.up * 1.7f - footDir * 0.5f;
+            fig.Reach(i * 0.35f, 2.4f); fig.Mouth(i * 0.3f);
+            gm.Pulse(0.5f + 0.2f * i); shake = 0.02f + 0.02f * i;
+            gm.audio.Sfx(i == 2 ? "stinger" : "whisper", i == 2 ? 0.5f : 0.7f);
+            yield return Wait(0.32f);
+        }
+
+        // se lanza sobre ti: la cara llena la pantalla, con la boca abierta
+        gm.SetDark(false);
+        var redLight = LightAt(camPos + footDir * 0.2f + Vector3.up * 0.1f, new Color(1f, 0.2f, 0.12f), 5f, 5f);
+        float headH = 1.85f * 1.05f;
+        Vector3 s0 = fig.transform.position;
+        Vector3 s1 = new Vector3(camPos.x, camPos.y - headH + 0.05f, camPos.z) + footDir * 1.0f;
+        gm.audio.Sfx("roar", 1f, 1.1f); gm.audio.Sfx("stinger", 0.7f);
+        Flash(new Color(0.8f, 0f, 0f), 0.25f, 0.25f);
+        yield return Tween(0.3f, u =>
+        {
+            float e = u * u;
+            fig.transform.position = Vector3.Lerp(s0, s1, e);
+            fig.Reach(0.4f + 0.6f * e, 2.6f); fig.Mouth(e); fov = Mathf.Lerp(66f, 82f, e); shake = 0.08f + 0.1f * u; gm.Pulse(1f);
+        });
+
+        // te agarra y te arrastra fuera de la cama, hacia el piso
+        gm.audio.Sfx("scream", 1f, 1.05f);
+        Vector3 d0 = camPos, off = fig.transform.position - camPos;
+        Vector3 d1 = new Vector3(camPos.x, floorY + 0.5f, camPos.z) + footDir * 1.1f;
+        float r0 = roll, pp = pitch;
+        yield return Tween(1.0f, u =>
+        {
+            float e = Ease(u);
+            camPos = Vector3.Lerp(d0, d1, e); fig.transform.position = camPos + off;
+            redLight.transform.position = camPos + footDir * 0.2f + Vector3.up * 0.1f;
+            pitch = Mathf.Lerp(pp, -25f, e); roll = Mathf.Lerp(r0, 28f, e); fov = Mathf.Lerp(82f, 100f, e);
+            fig.Mouth(0.7f + 0.3f * Mathf.Sin(u * 30f)); fig.Reach(1f, 2.6f); shake = 0.12f + 0.1f * u; gm.Pulse(1f);
+        });
     }
 
     /// <summary>Bañera: una figura empapada se levanta tras la cortina y se lanza sobre ti.</summary>
