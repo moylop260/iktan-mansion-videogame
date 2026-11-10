@@ -85,7 +85,31 @@ public static class MansionEditor
 
         MakeMat("Assets/Resources/BaseLit.mat", false);
         MakeMat("Assets/Resources/BaseLitEmit.mat", true);
+        MakeShaderMat("Assets/Resources/MirrorMat.mat", "Mansion/MirrorScreen");
+        MakeCutoutMat("Assets/Resources/BaseLitCutout.mat");
         AssetDatabase.SaveAssets();
+    }
+
+    static void MakeShaderMat(string path, string shaderName)
+    {
+        if (AssetDatabase.LoadAssetAtPath<Material>(path) != null) return;
+        var sh = Shader.Find(shaderName);
+        if (sh == null) { Debug.LogWarning("Shader not found yet: " + shaderName); return; }
+        AssetDatabase.CreateAsset(new Material(sh), path);
+    }
+
+    /// <summary>URP Lit con recorte por alfa y doble cara: telarañas y hojas.</summary>
+    static void MakeCutoutMat(string path)
+    {
+        if (AssetDatabase.LoadAssetAtPath<Material>(path) != null) return;
+        var m = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        m.SetFloat("_AlphaClip", 1f);
+        m.SetFloat("_Cutoff", 0.35f);
+        m.SetFloat("_Cull", 0f);
+        m.EnableKeyword("_ALPHATEST_ON");
+        m.SetOverrideTag("RenderType", "TransparentCutout");
+        m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+        AssetDatabase.CreateAsset(m, path);
     }
 
     static void MakeMat(string path, bool emission)

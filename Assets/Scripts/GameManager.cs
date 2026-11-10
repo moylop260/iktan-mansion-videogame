@@ -166,6 +166,10 @@ public class GameManager : MonoBehaviour
         vol.isGlobal = true;
         var prof = ScriptableObject.CreateInstance<VolumeProfile>();
         vol.profile = prof;
+        // el cuerpo del jugador solo se ve en los espejos (capas 8 y 9); la cámara principal no lo dibuja
+        c.cullingMask = ~((1 << MirrorSurface.AvatarLayer) | (1 << MirrorSurface.GhostLayer));
+        PlayerAvatar.Create(this, player, MirrorSurface.AvatarLayer, 0f);
+        PlayerAvatar.Create(this, player, MirrorSurface.GhostLayer, 1.0f);
         vg = prof.Add<Vignette>(true); vg.intensity.Override(0.42f); vg.smoothness.Override(0.45f);
         ca = prof.Add<ChromaticAberration>(true); ca.intensity.Override(0f);
         lens = prof.Add<LensDistortion>(true); lens.intensity.Override(0f);
