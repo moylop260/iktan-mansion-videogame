@@ -103,7 +103,7 @@ public static class MansionEditor
 
     static void ApplySettings()
     {
-        PlayerSettings.companyName = "Iktan Games";
+        PlayerSettings.companyName = "IkLpz";
         PlayerSettings.productName = "La Mansion";
         PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, "com.iktan.mansion");
         PlayerSettings.defaultScreenWidth = 1280;

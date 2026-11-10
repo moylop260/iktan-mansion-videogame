@@ -1,6 +1,7 @@
 # La Mansión (first-person survival-horror game)
 
-An original idea by Iktan. A Unity 3D project for macOS, in a classic survival-horror style
+A game by **Iktan Lopez (IkLpz)**, based on his handwritten notebook (see `docs/notebook`).
+A Unity 3D project for macOS, in a classic survival-horror style
 (Resident Evil / Outlast flavour). The game text and voices are in Spanish.
 
 **Version:** `0.1.0`

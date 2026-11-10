@@ -698,7 +698,7 @@ public class GameManager : MonoBehaviour
     {
         Rect2(new Rect(0, 0, W, H), new Color(0f, 0f, 0f, 0.75f));
         Shadowed(new Rect(0, 110f, W, 100f), "LA MANSIÓN", Serif(84, TextAnchor.MiddleCenter, Gold));
-        GUI.Label(new Rect(0, 210f, W, 40f), "Una idea original de Iktan", sLabel);
+        GUI.Label(new Rect(0, 210f, W, 40f), "Un juego de Iktan Lopez (IkLpz)", sLabel);
         float y = 300f;
         if (HasSave && GUI.Button(new Rect(W / 2f - 180f, y, 360f, 52f), "Continuar", sBtn)) Continue();
         if (HasSave) y += 66f;
