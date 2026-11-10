@@ -47,7 +47,9 @@ public static class TestWorld
     /// <summary>Usa un objeto como el jugador (tecla E) eligiendo la opción dada.</summary>
     public static void Use(GameObject go, int option = 0)
     {
+        Assert.IsNotNull(go, "the prop does not exist");
         var it = go.GetComponent<Interactable>();
+        Assert.IsNotNull(it, go.name + " has no Interactable");
         it.options()[option].run();
     }
 
@@ -55,7 +57,9 @@ public static class TestWorld
     public static void TakeFrom(string propName)
     {
         var go = Prop(propName);
+        Assert.IsNotNull(go, propName + " does not exist");
         var it = go.GetComponent<Interactable>();
+        Assert.IsNotNull(it, propName + " has no Interactable");
         var o = it.options();
         if (o[0].label.StartsWith("Abrir")) o[0].run();
         o = it.options();
