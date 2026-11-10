@@ -351,7 +351,121 @@ public static partial class MansionBuilder
         if (zone) gm.zones.Add(new Zone { name = name, x0 = x0, x1 = x1, z0 = z0, z1 = z1, y0 = y0 });
     }
 
-    static Door MakeDoor(string id, Vector3 hinge, bool alongX, float w, float h, Surf s, bool hide)
+    /// <summary>
+    /// Reja de hierro: marco, barrotes verticales con punta de lanza, travesaños y adornos. Se ve a través de ella.
+    /// Las piezas son hijas de la hoja (centro local = centro de la reja) y no tienen collider propio.
+    /// </summary>
+    static void BarredGate(Transform leaf, float w, float h)
+    {
+        var iron = Mon.Lit(new Color(0.07f, 0.07f, 0.09f), 0.55f);
+        var ironLight = Mon.Lit(new Color(0.16f, 0.16f, 0.19f), 0.6f);
+        float hw = w / 2f, hh = h / 2f;
+        // marco: dos postes, travesaño superior, inferior y uno intermedio
+        Mon.Part(leaf, PrimitiveType.Cube, new Vector3(-hw + 0.04f, 0f, 0f), new Vector3(0.08f, h, 0.07f), iron);
+        Mon.Part(leaf, PrimitiveType.Cube, new Vector3(hw - 0.04f, 0f, 0f), new Vector3(0.08f, h, 0.07f), iron);
+        Mon.Part(leaf, PrimitiveType.Cube, new Vector3(0f, hh - 0.35f, 0f), new Vector3(w, 0.06f, 0.05f), iron);
+        Mon.Part(leaf, PrimitiveType.Cube, new Vector3(0f, -hh + 0.18f, 0f), new Vector3(w, 0.07f, 0.05f), iron);
+        Mon.Part(leaf, PrimitiveType.Cube, new Vector3(0f, -0.1f, 0f), new Vector3(w, 0.05f, 0.04f), iron);
+        // barrotes verticales cada 12 cm con punta de lanza arriba (cubo girado 45 grados)
+        int n = Mathf.FloorToInt((w - 0.16f) / 0.12f);
+        float x0 = -(n - 1) * 0.06f;
+        for (int i = 0; i < n; i++)
+        {
+            float x = x0 + i * 0.12f;
+            Mon.Part(leaf, PrimitiveType.Cube, new Vector3(x, 0f, 0f), new Vector3(0.022f, h - 0.06f, 0.022f), iron);
+            var tip = Mon.Part(leaf, PrimitiveType.Cube, new Vector3(x, hh + 0.01f, 0f), new Vector3(0.05f, 0.05f, 0.03f), ironLight);
+            tip.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+        }
+        // adornos: aros en el tercio superior y bolas en los postes
+        for (int i = 3; i < n - 3; i += 6)
+        {
+            float x = x0 + i * 0.12f + 0.06f;
+            Mon.Part(leaf, PrimitiveType.Sphere, new Vector3(x, hh - 0.35f, 0f), new Vector3(0.16f, 0.16f, 0.03f), ironLight);
+            Mon.Part(leaf, PrimitiveType.Sphere, new Vector3(x, hh - 0.35f, 0f), new Vector3(0.09f, 0.09f, 0.04f), iron);
+        }
+        Mon.Part(leaf, PrimitiveType.Sphere, new Vector3(-hw + 0.04f, hh + 0.04f, 0f), Vector3.one * 0.12f, ironLight);
+        Mon.Part(leaf, PrimitiveType.Sphere, new Vector3(hw - 0.04f, hh + 0.04f, 0f), Vector3.one * 0.12f, ironLight);
+        // bisagras en el poste del lado de la bisagra y pasador del cierre
+        for (int i = -1; i <= 1; i += 2)
+            Mon.Part(leaf, PrimitiveType.Cube, new Vector3(-hw + 0.06f, i * (hh - 0.4f), 0.045f), new Vector3(0.16f, 0.07f, 0.02f), ironLight);
+        Mon.Part(leaf, PrimitiveType.Cube, new Vector3(hw - 0.12f, -0.1f, 0.045f), new Vector3(0.2f, 0.04f, 0.025f), ironLight);
+    }
+
+    /// <summary>Cilindro con el eje a lo largo del espesor de la puerta (el cilindro de Unity tiene el eje en Y y mide 2 de alto).</summary>
+    static GameObject Disc(Transform leaf, bool alongX, Vector3 pos, float diameter, float depth, Material m)
+    {
+        var g = Mon.Part(leaf, PrimitiveType.Cylinder, pos, new Vector3(diameter, depth / 2f, diameter), m);
+        g.transform.localRotation = alongX ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.Euler(0f, 0f, 90f);
+        return g;
+    }
+
+    /// <summary>
+    /// Herrajes de una cara de la puerta: placa de latón, cerradura de pasador (cilindro del color de la llave con su
+    /// ojo de cerradura: círculo y ranura) y manija de palanca con roseta. Sin color de llave solo lleva manija.
+    /// </summary>
+    static void DoorHardware(Transform leaf, bool alongX, int side, float w, float h, Color lockColor, Material brass, Material dark)
+    {
+        Vector3 along = alongX ? Vector3.right : Vector3.forward;       // hacia el borde libre
+        Vector3 thick = (alongX ? Vector3.forward : Vector3.right) * side;
+        Vector3 c = along * (w / 2f - 0.17f) + Vector3.up * (-h / 2f + 1.0f);   // centro de la placa (manija a ~1 m)
+        float s = 0.012f;                                                // grosor de la placa
+        // placa larga de latón
+        Mon.Part(leaf, PrimitiveType.Cube, c + thick * (0.05f + s / 2f),
+                 alongX ? new Vector3(0.085f, 0.34f, s) : new Vector3(s, 0.34f, 0.085f), brass);
+        // manija de palanca: roseta, palanca horizontal hacia la bisagra y remate redondo
+        Vector3 lever = c + Vector3.down * 0.045f;
+        Disc(leaf, alongX, lever + thick * (0.05f + s + 0.012f), 0.058f, 0.024f, brass);
+        Mon.Part(leaf, PrimitiveType.Cube, lever + thick * (0.05f + s + 0.03f) - along * 0.06f,
+                 alongX ? new Vector3(0.13f, 0.022f, 0.022f) : new Vector3(0.022f, 0.022f, 0.13f), brass);
+        Mon.Part(leaf, PrimitiveType.Sphere, lever + thick * (0.05f + s + 0.03f) - along * 0.125f, Vector3.one * 0.03f, brass);
+        if (lockColor.a <= 0f) return;
+        // cerradura de pasador, arriba de la manija: aro de latón + cilindro del color de la llave
+        Vector3 bolt = c + Vector3.up * 0.105f;
+        Disc(leaf, alongX, bolt + thick * (0.05f + s + 0.008f), 0.092f, 0.016f, brass);
+        Disc(leaf, alongX, bolt + thick * (0.05f + s + 0.02f), 0.072f, 0.024f, Mon.Glow(lockColor, 1.2f));
+        // ojo de la cerradura: círculo + ranura hacia abajo
+        Vector3 eye = bolt + thick * (0.05f + s + 0.033f);
+        Disc(leaf, alongX, eye + Vector3.up * 0.006f, 0.016f, 0.006f, dark);
+        Mon.Part(leaf, PrimitiveType.Cube, eye + Vector3.down * 0.012f,
+                 alongX ? new Vector3(0.008f, 0.026f, 0.006f) : new Vector3(0.006f, 0.026f, 0.008f), dark);
+    }
+
+    /// <summary>Candado de la reja: cuerpo del color de la llave, arco en U de acero, ojo de cerradura y cierre en la reja.</summary>
+    static void Padlock(Transform leaf, bool alongX, int side, float w, Color lockColor, Material brass, Material dark)
+    {
+        Vector3 along = alongX ? Vector3.right : Vector3.forward;
+        Vector3 thick = (alongX ? Vector3.forward : Vector3.right) * side;
+        var steel = Mon.Lit(new Color(0.65f, 0.67f, 0.7f), 0.85f);
+        Vector3 post = along * (w / 2f - 0.28f);                           // junto al poste del cierre, donde la reja se une a la pared
+        Vector3 c = post + thick * 0.075f + Vector3.up * (-0.06f);        // centro del cuerpo
+        // pletina del cierre (en el travesaño del centro) y argolla
+        Mon.Part(leaf, PrimitiveType.Cube, post + thick * 0.045f + Vector3.up * 0.1f,
+                 alongX ? new Vector3(0.22f, 0.07f, 0.02f) : new Vector3(0.02f, 0.07f, 0.22f), brass);
+        // cuerpo (caja ancha con hombros) en el color de la llave
+        var body = Mon.Glow(lockColor, 1.0f);
+        Mon.Part(leaf, PrimitiveType.Cube, c, alongX ? new Vector3(0.17f, 0.13f, 0.05f) : new Vector3(0.05f, 0.13f, 0.17f), body);
+        Mon.Part(leaf, PrimitiveType.Cube, c + Vector3.up * 0.075f, alongX ? new Vector3(0.14f, 0.03f, 0.045f) : new Vector3(0.045f, 0.03f, 0.14f), body);
+        // arco en U: dos patas y un travesaño con esquinas a 45 grados
+        float leg = 0.045f, top = 0.17f;
+        Mon.Part(leaf, PrimitiveType.Cube, c + Vector3.up * 0.115f + along * leg, alongX ? new Vector3(0.022f, 0.08f, 0.022f) : new Vector3(0.022f, 0.08f, 0.022f), steel);
+        Mon.Part(leaf, PrimitiveType.Cube, c + Vector3.up * 0.115f - along * leg, alongX ? new Vector3(0.022f, 0.08f, 0.022f) : new Vector3(0.022f, 0.08f, 0.022f), steel);
+        Mon.Part(leaf, PrimitiveType.Cube, c + Vector3.up * top, alongX ? new Vector3(0.1f, 0.022f, 0.022f) : new Vector3(0.022f, 0.022f, 0.1f), steel);
+        var cornerA = Mon.Part(leaf, PrimitiveType.Cube, c + Vector3.up * 0.16f + along * (leg - 0.01f), Vector3.one * 0.03f, steel);
+        var cornerB = Mon.Part(leaf, PrimitiveType.Cube, c + Vector3.up * 0.16f - along * (leg - 0.01f), Vector3.one * 0.03f, steel);
+        cornerA.transform.localRotation = Quaternion.Euler(45f, 45f, 0f); cornerB.transform.localRotation = Quaternion.Euler(45f, 45f, 0f);
+        // ojo de la cerradura abajo + brillo
+        Disc(leaf, alongX, c + Vector3.down * 0.02f + thick * 0.027f, 0.022f, 0.006f, dark);
+        Mon.Part(leaf, PrimitiveType.Cube, c + Vector3.down * 0.05f + thick * 0.027f,
+                 alongX ? new Vector3(0.01f, 0.04f, 0.006f) : new Vector3(0.006f, 0.04f, 0.01f), dark);
+        Mon.Part(leaf, PrimitiveType.Cube, c + Vector3.up * 0.02f - along * 0.05f + thick * 0.027f,
+                 alongX ? new Vector3(0.012f, 0.07f, 0.004f) : new Vector3(0.004f, 0.07f, 0.012f), brass);
+    }
+
+    /// <summary>
+    /// Puerta con bisagra (o reja que desaparece). Si lockColor tiene alfa, lleva una placa de cerradura de ese
+    /// color (en las dos caras) o un candado colgando (reja): el color debe coincidir con la llave y con el texto.
+    /// </summary>
+    static Door MakeDoor(string id, Vector3 hinge, bool alongX, float w, float h, Surf s, bool hide, Color lockColor = default(Color))
     {
         var pv = new GameObject("Puerta_" + id);
         pv.transform.SetParent(root, false);
@@ -360,14 +474,31 @@ public static partial class MansionBuilder
         leaf.transform.SetParent(pv.transform, false);
         Vector3 size = alongX ? new Vector3(w, h, 0.1f) : new Vector3(0.1f, h, w);
         leaf.transform.localPosition = alongX ? new Vector3(w / 2f, h / 2f, 0f) : new Vector3(0f, h / 2f, w / 2f);
-        leaf.AddComponent<MeshFilter>().sharedMesh = BoxMesh(size, s.tile);
-        leaf.AddComponent<MeshRenderer>().sharedMaterial = MatOf(s);
-        leaf.AddComponent<BoxCollider>().size = size;
-        // manija
-        var knob = Ball("Manija", Vector3.zero, 0.09f, MatOf(C(Gold, 0.8f)));
-        knob.transform.SetParent(leaf.transform, false);
-        knob.transform.localScale = alongX ? new Vector3(0.09f / w, 0.09f / h, 0.09f / 0.1f) : new Vector3(0.09f / 0.1f, 0.09f / h, 0.09f / w);
-        knob.transform.localPosition = alongX ? new Vector3(0.4f, -0.05f, 0.07f) : new Vector3(0.07f, -0.05f, 0.4f);
+        if (!hide)
+        {
+            leaf.AddComponent<MeshFilter>().sharedMesh = BoxMesh(size, s.tile);
+            leaf.AddComponent<MeshRenderer>().sharedMaterial = MatOf(s);
+        }
+        leaf.AddComponent<BoxCollider>().size = size;   // en la reja es invisible: bloquea el paso y se puede apuntar
+
+        Vector3 along = alongX ? Vector3.right : Vector3.forward;     // a lo largo de la hoja
+        Vector3 thick = alongX ? Vector3.forward : Vector3.right;     // espesor
+        var brass = MatOf(C(Gold, 0.8f));
+        var dark = Mon.Lit(Color.black, 0.1f);
+        if (!hide)
+        {
+            for (int side = -1; side <= 1; side += 2)
+                DoorHardware(leaf.transform, alongX, side, w, h, lockColor, brass, dark);
+        }
+        else
+        {
+            BarredGate(leaf.transform, w, h);
+            if (lockColor.a > 0f)
+            {
+                for (int side = -1; side <= 1; side += 2)
+                    Padlock(leaf.transform, alongX, side, w, lockColor, brass, dark);
+            }
+        }
         var d = pv.AddComponent<Door>();
         d.id = id; d.leaf = leaf; d.hide = hide; d.openAngle = alongX ? -95f : 95f;
         gm.doorMap[id] = d;
@@ -501,14 +632,14 @@ public static partial class MansionBuilder
         Chandelier(11f, 3.1f, 10.5f);
 
         // ---- Vestíbulo
-        var front = MakeDoor("principal", new Vector3(11f, y, 0f), true, 2f, DH, sDark, false);
+        var front = MakeDoor("principal", new Vector3(11f, y, 0f), true, 2f, DH, sDark, false, new Color(1f, 0.72f, 0.12f));
         Act(front.leaf, "Puerta principal", "Intentar salir", () =>
         {
             if (gm.Has("Llave dorada")) gm.Win("FINAL: ¡ESCAPASTE!\n\nGiras la llave dorada y la puerta se abre. Corres hasta que la mansión desaparece detrás de los árboles... Nunca volverás a comprar una casa barata.");
-            else gm.Say("La puerta principal está cerrada con llave. Necesitas una llave dorada.");
+            else gm.Say("La puerta principal está cerrada con una cerradura dorada. Necesitas la llave dorada.");
         });
-        var gate = MakeDoor("reja", new Vector3(12.4f, y, 3.7f), true, 3.45f, 2.5f, C(new Color(0.2f, 0.2f, 0.25f), 0.6f), true);
-        KeyDoor(gate, "Llave azul", "Reja de la escalera", "Una reja bloquea la escalera. Tiene una cerradura azul.", "Usas la llave azul y la reja se abre. Ya puedes subir.");
+        var gate = MakeDoor("reja", new Vector3(12.4f, y, 3.7f), true, 3.45f, 2.5f, C(new Color(0.2f, 0.2f, 0.25f), 0.6f), true, new Color(0.3f, 0.5f, 1f));
+        KeyDoor(gate, "Llave azul", "Reja de la escalera", "La reja de la escalera está cerrada con un candado azul.", "Usas la llave azul y la reja de la escalera se abre. Ya puedes subir.");
         Look(P("Reloj", 15.5f, y, 15.4f, 0.6f, 2.0f, 0.5f, sDark), "Reloj de pie", "El reloj está detenido a las 3:00 de la madrugada.");
         Box("Alfombra", new Vector3(12f, 0.03f, 6f), new Vector3(2.4f, 0.02f, 11.5f), sCarpet, false);
         P("Pilastra", 8.4f, y, 5.0f, 0.5f, H, 0.5f, sMarble);
@@ -569,7 +700,7 @@ public static partial class MansionBuilder
             () => Take("Llave verde", "Dentro del lavabo hay una llave verde.", "Solo queda agua oscura."));
 
         // ---- Biblioteca (cerrada con llave verde)
-        var bib = MakeDoor("biblioteca", new Vector3(16f, y, 12.2f), false, 1.6f, DH, sDark, false);
+        var bib = MakeDoor("biblioteca", new Vector3(16f, y, 12.2f), false, 1.6f, DH, sDark, false, new Color(0.2f, 0.85f, 0.3f));
         KeyDoor(bib, "Llave verde", "Puerta de la biblioteca", "Está cerrada. La cerradura es verde.", "La llave verde encaja. La puerta se abre con un chirrido.");
         Window(true, 16f, 20f, y, -1);
         Rug(20.5f, y, 12.5f, 3.4f, 2.6f);
@@ -659,7 +790,7 @@ public static partial class MansionBuilder
         Look(P("Cama4", 18.5f, y, 6.6f, 2.0f, 0.7f, 2.4f, C(new Color(0.3f, 0.36f, 0.3f), 0.05f)), "Cama", "Una cama con un hueco como de alguien que dormía aquí hace años.");
 
         // ---- Oficina (cerrada con llave amarilla)
-        var ofi = MakeDoor("oficina", new Vector3(16f, y, 12.2f), false, 1.6f, DH, sDark, false);
+        var ofi = MakeDoor("oficina", new Vector3(16f, y, 12.2f), false, 1.6f, DH, sDark, false, new Color(1f, 0.9f, 0.25f));
         KeyDoor(ofi, "Llave amarilla", "Puerta de la oficina", "Está cerrada con una cerradura amarilla.", "La llave amarilla abre la oficina.");
         Window(true, 16f, 20f, y, -1);
         Rug(20.0f, y, 12.5f, 3.4f, 2.6f);
