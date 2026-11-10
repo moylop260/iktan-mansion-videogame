@@ -122,6 +122,8 @@ public class Cinema : MonoBehaviour
         if (rend != null) b = rend.bounds;
         Vector3 fwd = camPos - b.center; fwd.y = 0f;
         fwd = fwd.sqrMagnitude < 0.001f ? -player.transform.forward : fwd.normalized;
+        // las puertas y el hueco son ortogonales: usa el eje dominante para que todo caiga sobre la cara del mueble
+        fwd = Mathf.Abs(fwd.x) > Mathf.Abs(fwd.z) ? new Vector3(Mathf.Sign(fwd.x), 0f, 0f) : new Vector3(0f, 0f, Mathf.Sign(fwd.z));
 
         switch (kind)
         {
@@ -173,6 +175,18 @@ public class Cinema : MonoBehaviour
         gm.audio.Sfx("whisper", 0.8f); gm.Pulse(0.5f);
         yield return Wait(0.6f);
 
+        // si estás muy cerca del mueble, das un paso atrás asustado: la criatura necesita espacio para verse
+        const float safeDist = 2.3f;
+        float dist = Vector2.Distance(new Vector2(camPos.x, camPos.z), new Vector2(front.x, front.z));
+        if (dist < safeDist)
+        {
+            Vector3 from = camPos, to = camPos + fwd * (safeDist - dist);
+            gm.audio.Sfx("step", 0.7f, 0.8f); gm.Pulse(0.4f);
+            yield return Tween(0.3f, u => camPos = Vector3.Lerp(from, to, Ease(u)));
+            dist = safeDist;
+            yield return LookAt(face, 0.15f);
+        }
+
         // el rugido de la bestia
         gm.audio.Sfx("roar", 1f); gm.Pulse(1f); shake = 0.025f;
         Vector3 p0 = fig.transform.position, p1 = p0 + fwd * (tall ? 1.3f : 0.6f);
@@ -183,13 +197,13 @@ public class Cinema : MonoBehaviour
         yield return Tween(0.55f, u => { fig.Reach(Ease(u), 3.2f); shake = 0.03f + 0.04f * u; });
 
         // se lanza sobre ti: la cara llena la pantalla, iluminada de rojo
-        Vector3 dir = new Vector3(-fwd.x, 0f, -fwd.z).normalized;                 // de la criatura hacia ti
-        var redLight = LightAt(camPos + dir * 0.2f + Vector3.up * 0.1f, new Color(1f, 0.2f, 0.12f), 6f, 5f);
+        Vector3 dir = new Vector3(-fwd.x, 0f, -fwd.z).normalized;                 // de ti hacia el mueble
+        var redLight = LightAt(camPos + dir * 0.2f + Vector3.up * 0.1f, new Color(1f, 0.2f, 0.12f), 5f, 5f);
         float headH = 1.85f * scale;
         Vector3 s0 = fig.transform.position;
         Vector3 s1 = new Vector3(camPos.x, camPos.y - headH + 0.05f, camPos.z) + dir * 1.05f;
         gm.audio.Sfx("roar", 1f, 1.15f); gm.audio.Sfx("stinger", 0.7f);
-        Flash(new Color(0.8f, 0f, 0f), 0.6f, 0.4f);
+        Flash(new Color(0.8f, 0f, 0f), 0.25f, 0.25f);
         yield return Tween(0.3f, u =>
         {
             float e = u * u;
@@ -198,19 +212,20 @@ public class Cinema : MonoBehaviour
             fig.Reach(1f, 3.2f); fig.Mouth(e); fov = Mathf.Lerp(62f, 80f, e); shake = 0.08f + 0.1f * u; gm.Pulse(1f);
         });
 
-        // te sujeta y te arrastra hacia atrás, hacia la oscuridad del closet
+        // te sujeta y te arrastra hacia el mueble, sin atravesarlo: solo recorre el espacio libre
         gm.audio.Sfx("scream", 1f, 1.05f);
         Vector3 c0 = camPos, off = fig.transform.position - camPos;
-        Vector3 c1 = new Vector3(front.x, b.center.y, front.z) - fwd * 0.3f;
+        float travel = Mathf.Max(0f, dist - 1.05f - 0.25f);
+        Vector3 c1 = camPos + dir * travel;
         float r0 = roll;
         yield return Tween(1.1f, u =>
         {
             float e = Ease(u);
             camPos = Vector3.Lerp(c0, c1, e) + (tall ? Vector3.up * 0.5f * e : Vector3.zero);
-            fig.transform.position = camPos + off + (tall ? Vector3.zero : Vector3.zero);
+            fig.transform.position = camPos + off;
+            redLight.transform.position = camPos + dir * 0.2f + Vector3.up * 0.1f;
             fig.Mouth(0.7f + 0.3f * Mathf.Sin(u * 30f)); fig.Reach(1f, 3.2f);
             roll = Mathf.Lerp(r0, 22f, e); shake = 0.12f + 0.1f * u; gm.Pulse(1f); fov = Mathf.Lerp(80f, 100f, e);
-            redLight.intensity = Mathf.Lerp(6f, 1f, u);
         });
     }
 
