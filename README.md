@@ -1,22 +1,39 @@
-# La Mansión (juego de terror en primera persona)
+# La Mansión (first-person survival-horror game)
 
-Idea original de Iktan. Proyecto de Unity 3D para macOS.
+An original idea by Iktan. A Unity 3D project for macOS, in a classic survival-horror style
+(Resident Evil / Outlast flavour). The game text and voices are in Spanish.
 
-## Cómo se juega
-- **WASD** mover · **Ratón** mirar · **Shift** correr
-- **E** interactuar · **F** linterna (necesita linterna + pilas) · **H** pista · **Esc** pausa
-- Las **lámparas azules** son checkpoints: al pasar cerca se guarda el avance (se ponen verdes).
-- Si abres el refri equivocado... ¡game over! Reintentas desde el último checkpoint (R) o empiezas de cero (N).
+**Version:** `0.1.0`
 
-## Camino correcto (spoiler)
-Cocina (cajón: linterna) → Cuarto 1 (mesita: pilas) → Baño (lavabo: llave verde) → Biblioteca (libro azul: llave azul;
-¡no el rojo!) → reja de la escalera → Cuarto 3 (cómoda: partituras) → Piano (con linterna encendida: llave amarilla)
-→ Oficina → caja fuerte (el año en que compraron la casa, lo dice el diario de la Sala) → llave dorada → puerta principal.
+## How to play
+- **WASD** move · **Mouse** look · **Shift** run
+- **E** interact · **F** flashlight (needs flashlight + batteries) · **H** hint · **Tab** inventory · **Esc** pause
+- **Blue lamps** are checkpoints: walking near one saves your progress (they turn green).
+- Open the wrong thing and you get an animated death scene (with sound), then you retry from the
+  last checkpoint (R) or start over (N).
 
-## Abrir y compilar
-1. Abre Unity Hub → *Add project from disk* → esta carpeta, con Unity 6.
-2. Menú **Mansion → Compilar para macOS** genera `Builds/Mansion.app`.
-   (o pulsa ▶ Play dentro del editor).
+## Winning route (spoilers)
+Kitchen drawer (flashlight) → bedroom nightstand (batteries) → bathroom sink (green key) → library
+(the blue book gives the blue key, never the red one) → stair gate → bedroom dresser (sheet music) →
+piano room (flashlight on) → yellow key → office → safe (the year the house was bought, read in the
+living-room diary) → golden key → front door.
 
-Por línea de comandos:
-`"/Applications/Unity/Hub/Editor/<versión>/Unity.app/Contents/MacOS/Unity" -batchmode -quit -projectPath . -executeMethod MansionEditor.BuildMac -logFile build.log`
+## Open and build
+1. Unity Hub → *Add project from disk* → this folder, with Unity 6.
+2. Menu **Mansion → Compilar para macOS** builds `Builds/Mansion.app`, or press Play in the editor.
+
+Command line:
+`"/Applications/Unity/Hub/Editor/<version>/Unity.app/Contents/MacOS/Unity" -batchmode -quit -projectPath . -executeMethod MansionEditor.BuildMac -logFile build.log`
+
+Preview a death scene directly: launch the app with `-testdeath closet`
+(also `wardrobe`, `fridge`, `mirror`, `bed`, `tub`, `pit`, `tv`, `doll`, `alarm`, `closetnear`).
+
+## Versioning
+The version lives in `ProjectSettings/ProjectSettings.asset` (`bundleVersion`) and in this README,
+and is bumped with [bump2version](https://github.com/c4urself/bump2version), which also commits and tags:
+
+```sh
+bump2version patch   # 0.1.0 -> 0.1.1
+bump2version minor   # 0.1.0 -> 0.2.0
+git push origin main --tags
+```
