@@ -195,7 +195,17 @@ public class GameManager : MonoBehaviour
         if (audio != null) audio.Sfx("pickup", 0.7f);
     }
     public bool FlashReady { get { return Has("Linterna") && Has("Pilas"); } }
-    public bool FlashOn { get { return flash != null && flash.enabled; } }
+    public bool FlashOn
+    {
+        get { return flash != null && flash.enabled; }
+        set { if (flash != null) flash.enabled = value; }
+    }
+
+    // accesos para las pruebas automáticas
+    public int ChoiceCount { get { return chOpts.Count; } }
+    public void PickOption(int i) { Pick(i); }
+    public int Deaths { get { return deaths; } }
+    public string CurrentCheckpoint { get { return currentCp; } }
 
     public void Say(string t) { msg = t; msgUntil = Time.time + Mathf.Max(3.5f, t.Length * 0.06f); }
 
@@ -388,7 +398,7 @@ public class GameManager : MonoBehaviour
         if (cinema != null) cinema.Cleanup();
     }
 
-    string Hint()
+    public string Hint()
     {
         if (Has("Llave dorada")) return "Tienes la llave dorada: ¡sal por la puerta principal!";
         if (Has("Llave amarilla")) return "La llave amarilla abre la oficina del segundo piso. La caja fuerte guarda la salida.";
