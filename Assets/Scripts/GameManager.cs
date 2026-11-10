@@ -695,6 +695,7 @@ public class GameManager : MonoBehaviour
         if (GUI.Button(new Rect(W / 2f - 180f, y, 360f, 52f), "Nuevo juego", sBtn)) NewGame();
         y += 66f;
         if (GUI.Button(new Rect(W / 2f - 180f, y, 360f, 52f), "Salir", sBtn)) Quit();
+        GUI.Label(new Rect(W - 160f, H - 34f, 150f, 26f), "v" + Application.version, new GUIStyle(sSmall) { alignment = TextAnchor.MiddleRight });
         GUI.Label(new Rect(W / 2f - 380f, H - 110f, 760f, 80f),
             "WASD mover · Ratón mirar · Shift correr · E interactuar · F linterna · H pista · Esc pausa\nCada checkpoint (lámpara azul) guarda tu avance. Si mueres, vuelves al último.",
             new GUIStyle(sLabel) { fontSize = 16 });
