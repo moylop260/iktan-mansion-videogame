@@ -10,7 +10,7 @@ using UnityEngine;
 ///   Piso 1:  Sala | Vestíbulo (escalera) | Cocina        Cuarto 1 | Baño | Biblioteca
 ///   Piso 2:  Cuarto 3 | Pasillo | Cuarto 4               Piano (oscuro) | Oficina
 /// </summary>
-public static class MansionBuilder
+public static partial class MansionBuilder
 {
     const float T = 0.3f;     // grosor de pared
     const float H = 3.1f;     // alto de pared
@@ -177,6 +177,29 @@ public static class MansionBuilder
         g.GetComponent<Renderer>().sharedMaterial = m;
         Object.Destroy(g.GetComponent<Collider>());
         return g;
+    }
+
+    /// <summary>Grupo para muebles compuestos: el Interactable va en el grupo y las piezas son hijos con collider.</summary>
+    static GameObject Group(string name)
+    {
+        var g = new GameObject(name);
+        g.transform.SetParent(root, false);
+        return g;
+    }
+
+    /// <summary>Caja (en coordenadas del mundo) como hija de un grupo. El grupo está en el origen sin rotación.</summary>
+    static GameObject BoxIn(GameObject grp, string name, Vector3 center, Vector3 size, Surf s, bool collide = true)
+    {
+        var b = Box(name, center, size, s, collide);
+        b.transform.SetParent(grp.transform, true);
+        return b;
+    }
+
+    static GameObject BallIn(GameObject grp, string name, Vector3 pos, float d, Material m)
+    {
+        var b = Ball(name, pos, d, m);
+        b.transform.SetParent(grp.transform, true);
+        return b;
     }
 
     static Vector2 G(float center, float width) { return new Vector2(center, width); }

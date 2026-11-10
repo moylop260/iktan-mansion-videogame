@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>Texturas procedurales (madera, mármol, papel tapiz...) e íconos de objetos. No usa archivos de imagen.</summary>
-public static class TexGen
+public static partial class TexGen
 {
     static readonly Dictionary<string, Texture2D> cache = new Dictionary<string, Texture2D>();
 
