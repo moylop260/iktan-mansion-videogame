@@ -369,7 +369,13 @@ public class GameManager : MonoBehaviour
         if (worldRoot != null) foreach (var l in worldRoot.GetComponentsInChildren<Light>(true)) l.enabled = !dark;
     }
 
-    public void EndDeath() { mode = Mode.GameOver; deathTime = Time.unscaledTime; }
+    public void EndDeath()
+    {
+        // la pantalla de GAME OVER tiene su propio fondo: quita el negro de la escena para que se vea el menú
+        fadeAlpha = 0f; flashAlpha = 0f; staticAlpha = 0f;
+        audio.SetHeart(0f);
+        mode = Mode.GameOver; deathTime = Time.unscaledTime;
+    }
 
     void ResetFx()
     {
